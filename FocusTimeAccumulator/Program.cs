@@ -44,29 +44,32 @@ class Program
 		var appTitle = FocusFinder.WindowsProcessFocusApi.GetForegroundProcessTitle( );
 		if ( appTitle.Length > 128 )
 			appTitle = appTitle.Substring( 0, 128 );
+
+		
 		if ( currentActivePage != appTitle )
-		{	
-			//i am ashamed of this code already.
-			var activeApp = apps.Where( a => a.proc == currentActiveApp );
+		{
+			//get the current page if it's different
+			var activeApp = apps.Where( a => a.name == currentActivePage );
 			var activeAppSetting = appSettings.Where( s => s.proc == currentActiveApp );
+			//if the current page has a profile
 			if ( activeApp.Any( ) )
 			{
+				//get the profile
 				var appProfile = activeApp.ToList( )[ 0 ];
-				var appSettingProfile = activeAppSetting.Where( a => a.proc == appProfile.proc );
-
-				if ( appSettingProfile.Any() && appSettingProfile.ToList()[0].shared )
+				var isu = appSettings.Where( s => s.proc == currentActiveApp );
+				//check if the profile belongs to a shared app
+				if ( isu.Any() && isu.ToList()[0].shared )
 				{
 					(prev, now) = (now, DateTime.Now); //calculate time span
 					appProfile.span += now - prev; //add time span
 					Console.WriteLine( $"exiting shared app {currentActiveApp} after {now - prev}. total time: {appProfile.span}" );
 				}
-				else
+				else//if it's not a shared app
 				{
 					var currentApp = apps.Where( a => a.name == currentActivePage );
 					if ( currentApp.Any( ) )
-					{
+					{ //get the non shared profile
 						var appProfile2 = activeApp.ToList( )[ 0 ];
-						//if there is a current app profile
 						(prev, now) = (now, DateTime.Now); //calculate time span
 						appProfile2.span += now - prev; //add time span
 						Console.WriteLine( $"exiting {currentActivePage} after {now - prev}. total time: {appProfile.span}" );
@@ -85,7 +88,7 @@ class Program
 					Console.WriteLine( $"adding new shared app: {appName}" );
 					apps.Add( new( )
 					{
-						name = appName,
+						name = appTitle,
 						proc = appName,
 						span = TimeSpan.Zero //new apps have no span
 					} );
