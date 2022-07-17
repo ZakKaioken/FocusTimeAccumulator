@@ -4,7 +4,7 @@ namespace FocusTimeAccumulator
 {
 	internal class SaveData
 	{
-		public static void WriteToBinaryFile<T>( string filePath, T objectToWrite, bool append = false )
+		public static void SerializeJson<T>( string filePath, T objectToWrite )
 		{
 			using ( StreamWriter file = File.CreateText( filePath ) )
 			{
@@ -12,7 +12,7 @@ namespace FocusTimeAccumulator
 				ser.Serialize( file, objectToWrite );
 			}
 		}
-		public static T ReadFromBinaryFile<T>( string filePath )
+		public static T DeserializeJson<T>( string filePath )
 		{
 			using ( StreamReader file = File.OpenText( filePath ) )
 			{

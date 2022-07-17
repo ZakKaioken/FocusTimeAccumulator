@@ -4,6 +4,7 @@ class Program
 {
 	//possibly bad way to hold data
 	static string file = "apps.json";
+	static string appSettingfile = "sharedApps.json";
 	//app is the process without a title, page is the process title
 	//in the json edit the shared bool to true on apps
 	//which you don't want to save individual page titles on
@@ -15,11 +16,20 @@ class Program
 	static DateTime now = DateTime.Now;
 
 	static List<App> apps;
+	static List<AppSetting> appSettings;
 	static System.Timers.Timer timer = new System.Timers.Timer( );
 	public static async Task Main( )
 	{
 		//make a new list for storing saved app data
-		apps = File.Exists( file ) ? SaveData.ReadFromBinaryFile<List<App>>( file ) : new( );
+		apps = File.Exists( file ) ? SaveData.DeserializeJson<List<App>>( file ) : new( );
+		if ( File.Exists( appSettingfile ) )
+		{
+			appSettings = SaveData.DeserializeJson<List<AppSetting>>( appSettingfile );
+		} else
+		{
+			appSettings = new( );
+			SaveData.SerializeJson( file, appSettings );
+		}
 		//set up timer to tick every second
 		timer.Elapsed += ( _, _ ) => Tick( );
 		timer.Interval = 1000;
@@ -34,12 +44,16 @@ class Program
 		if ( appTitle.Length > 128 )
 			appTitle = appTitle.Substring( 0, 128 );
 		if ( currentActivePage != appTitle )
-		{
+		{	
+			//i am ashamed of this code already.
 			var activeApp = apps.Where( a => a.proc == currentActiveApp );
+			var activeAppSetting = appSettings.Where( s => s.proc == currentActiveApp );
 			if ( activeApp.Any( ) )
 			{
 				var appProfile = activeApp.ToList( )[ 0 ];
-				if ( appProfile.shared )
+				var appSettingProfile = activeAppSetting.Where( a => a.proc == appProfile.proc );
+
+				if ( appSettingProfile.Any() && appSettingProfile.ToList()[0].shared )
 				{
 					(prev, now) = (now, DateTime.Now); //calculate time span
 					appProfile.span += now - prev; //add time span
@@ -73,7 +87,7 @@ class Program
 
 			currentActiveApp = appName;
 			currentActivePage = appTitle;
-			SaveData.WriteToBinaryFile( file, apps ); //save json
+			SaveData.SerializeJson( file, apps ); //save json
 		}
 	}
 }
