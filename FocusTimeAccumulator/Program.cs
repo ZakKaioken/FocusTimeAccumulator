@@ -28,7 +28,8 @@ class Program
 		} else
 		{
 			appSettings = new( );
-			SaveData.SerializeJson( file, appSettings );
+			appSettings.Add( new( ) { proc = "", shared = true } );
+			SaveData.SerializeJson( appSettingfile, appSettings );
 		}
 		//set up timer to tick every second
 		timer.Elapsed += ( _, _ ) => Tick( );
@@ -72,19 +73,39 @@ class Program
 					}
 				}
 			}
-			//what to do with new processes
-			var aps = apps.Where( a => a.name == appTitle );
-			if ( !aps.Any( ) )
-			{
-				Console.WriteLine( $"adding new app: {appTitle}" );
-				apps.Add( new( )
-				{
-					name = appTitle,
-					proc = appName,
-					span = TimeSpan.Zero //new apps have no span
-				} );
-			}
 
+
+		
+			var f = appSettings.Where( a => a.proc == appName ).ToList();
+			if ( f.Any( ) && f.Any(x=>x.shared) )
+			{
+				var aps = apps.Where( a => a.proc == appName );
+				if ( !aps.Any( ) )
+				{
+					Console.WriteLine( $"adding new shared app: {appName}" );
+					apps.Add( new( )
+					{
+						name = appName,
+						proc = appName,
+						span = TimeSpan.Zero //new apps have no span
+					} );
+				}
+			}
+			else
+			{
+				
+				var aps = apps.Where( a => a.name == appTitle );
+				if ( !aps.Any( ) )
+				{
+					Console.WriteLine( $"adding new app: {appTitle}" );
+					apps.Add( new( )
+					{
+						name = appTitle,
+						proc = appName,
+						span = TimeSpan.Zero //new apps have no span
+					} );
+				}
+			}
 			currentActiveApp = appName;
 			currentActivePage = appTitle;
 			SaveData.SerializeJson( file, apps ); //save json
