@@ -5,6 +5,8 @@ class Program
 	//possibly bad way to hold data
 	static string file = "apps.json";
 	static string appSettingfile = "sharedApps.json";
+	static float idleTime=3;
+	static bool idleModeEnabled = true;
 	//app is the process without a title, page is the process title
 	//in the json edit the shared bool to true on apps
 	//which you don't want to save individual page titles on
@@ -42,12 +44,17 @@ class Program
 	{
 		var appName = FocusFinder.WindowsProcessFocusApi.GetForegroundProcessName( );
 		var appTitle = FocusFinder.WindowsProcessFocusApi.GetForegroundProcessTitle( );
+		var lastInput = FocusFinder.WindowsProcessFocusApi.GetLastInputTime( );
+
+		if ( idleModeEnabled && ( DateTime.Now - lastInput ).TotalMinutes > idleTime )
+			appTitle.Insert( 0, "[Idle] " );
+
 		if ( appTitle.Length > 128 )
 			appTitle = appTitle.Substring( 0, 128 );
 
-		
 		if ( currentActivePage != appTitle )
 		{
+			(prev, now) = (now, DateTime.Now);
 			//get the current page if it's different
 			var activeApp = apps.Where( a => a.name == currentActivePage );
 			var activeAppSetting = appSettings.Where( s => s.proc == currentActiveApp );
@@ -58,9 +65,9 @@ class Program
 				var appProfile = activeApp.ToList( )[ 0 ];
 				var isu = appSettings.Where( s => s.proc == currentActiveApp );
 				//check if the profile belongs to a shared app
-				if ( isu.Any() && isu.ToList()[0].shared )
+				if ( isu.Any( ) && isu.ToList( )[ 0 ].shared )
 				{
-					(prev, now) = (now, DateTime.Now); //calculate time span
+					//calculate time span
 					appProfile.span += now - prev; //add time span
 					Console.WriteLine( $"exiting shared app {currentActiveApp} after {now - prev}. total time: {appProfile.span}" );
 				}
@@ -70,7 +77,6 @@ class Program
 					if ( currentApp.Any( ) )
 					{ //get the non shared profile
 						var appProfile2 = activeApp.ToList( )[ 0 ];
-						(prev, now) = (now, DateTime.Now); //calculate time span
 						appProfile2.span += now - prev; //add time span
 						Console.WriteLine( $"exiting {currentActivePage} after {now - prev}. total time: {appProfile.span}" );
 					}
@@ -78,9 +84,9 @@ class Program
 			}
 
 
-		
-			var f = appSettings.Where( a => a.proc == appName ).ToList();
-			if ( f.Any( ) && f.Any(x=>x.shared) )
+
+			var f = appSettings.Where( a => a.proc == appName ).ToList( );
+			if ( f.Any( ) && f.Any( x => x.shared ) )
 			{
 				var aps = apps.Where( a => a.proc == appName );
 				if ( !aps.Any( ) )
@@ -96,7 +102,7 @@ class Program
 			}
 			else
 			{
-				
+
 				var aps = apps.Where( a => a.name == appTitle );
 				if ( !aps.Any( ) )
 				{
