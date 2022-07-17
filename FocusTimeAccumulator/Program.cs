@@ -47,7 +47,7 @@ class Program
 		var lastInput = FocusFinder.WindowsProcessFocusApi.GetLastInputTime( );
 
 		if ( idleModeEnabled && ( DateTime.Now - lastInput ).TotalMinutes > idleTime )
-			appTitle.Insert( 0, "[Idle] " );
+			appTitle = appTitle.Insert( 0, "[Idle] " );
 
 		if ( appTitle.Length > 128 )
 			appTitle = appTitle.Substring( 0, 128 );
