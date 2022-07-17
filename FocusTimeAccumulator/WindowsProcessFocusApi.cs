@@ -33,46 +33,16 @@ namespace FocusFinder
 		[System.Runtime.InteropServices.DllImport( "user32.dll" )]
 		public static extern Int32 GetWindowThreadProcessId( IntPtr hWnd, out uint lpdwProcessId );
 
-		// Returns the name of the process owning the foreground window.
-		public static string GetForegroundProcessName( )
+		public static System.Diagnostics.Process? GetForegroundProcess( )
 		{
-			IntPtr hwnd = GetForegroundWindow( );
-
-			// The foreground window can be NULL in certain circumstances,
-			// such as when a window is losing activation.
-			if ( hwnd == null )
-				return "Unknown";
-
-			uint pid;
-			GetWindowThreadProcessId( hwnd, out pid );
-
-			foreach ( System.Diagnostics.Process p in System.Diagnostics.Process.GetProcesses( ) )
+			try
 			{
-				if ( p.Id == pid )
-					return p.ProcessName;
+				if ( GetWindowThreadProcessId( GetForegroundWindow( ), out uint pid ) != 0 )
+					return System.Diagnostics.Process.GetProcessById( (int)pid );
 			}
-
-			return "Unknown";
+			catch { }
+			return null;
 		}
-		public static string GetForegroundProcessTitle( )
-		{
-			IntPtr hwnd = GetForegroundWindow( );
 
-			// The foreground window can be NULL in certain circumstances,
-			// such as when a window is losing activation.
-			if ( hwnd == null )
-				return "Unknown";
-
-			uint pid;
-			GetWindowThreadProcessId( hwnd, out pid );
-
-			foreach ( System.Diagnostics.Process p in System.Diagnostics.Process.GetProcesses( ) )
-			{
-				if ( p.Id == pid )
-					return p.MainWindowTitle;
-			}
-
-			return "Unknown";
-		}
 	}
 }

@@ -1,4 +1,6 @@
-﻿using FocusTimeAccumulator;
+﻿using System;
+using System.IO;
+using FocusTimeAccumulator;
 
 class Program
 {
@@ -42,8 +44,10 @@ class Program
 	}
 	static void Tick( )
 	{
-		var appName = FocusFinder.WindowsProcessFocusApi.GetForegroundProcessName( );
-		var appTitle = FocusFinder.WindowsProcessFocusApi.GetForegroundProcessTitle( );
+		//better foreground process finding suggestion from issue #2
+		var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( ); 
+		var appName = appProcess?.ProcessName ?? "Unknown";
+		var appTitle = appProcess?.MainWindowTitle ?? "Unknown";
 		var lastInput = FocusFinder.WindowsProcessFocusApi.GetLastInputTime( );
 
 		if ( idleModeEnabled && ( DateTime.Now - lastInput ).TotalMinutes > idleTime )
@@ -82,8 +86,6 @@ class Program
 					}
 				}
 			}
-
-
 
 			var f = appSettings.Where( a => a.proc == appName ).ToList( );
 			if ( f.Any( ) && f.Any( x => x.shared ) )
