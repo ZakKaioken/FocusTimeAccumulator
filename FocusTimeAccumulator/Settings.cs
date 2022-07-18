@@ -15,11 +15,13 @@ namespace FocusTimeAccumulator
 		public bool idleModeEnabled = true;
 		public FocusSetting focusSetting = FocusSetting.pool;
 		public List<AppSetting> appSettings = new List<AppSetting>( );
-
+		public List<string> similarSuggestions = new List<string>( );
 		public Settings() {
 			appSettings.Add(new() { 
-					proc = "", 
-					shared = true
+					proc = "",
+					similarTitles = "",
+					combineSimilarTitles = false, 
+					shared = false
 			});
 		}
 
@@ -27,8 +29,11 @@ namespace FocusTimeAccumulator
 		public class AppSetting
 		{
 			public string proc;
+			public string similarTitles;
 			public bool shared;
+			public bool combineSimilarTitles;
 		}
+
 		[Flags]
 		[Serializable]
 		public enum FocusSetting

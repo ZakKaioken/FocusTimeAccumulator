@@ -19,8 +19,14 @@ namespace FocusTimeAccumulator.Features.Pool
 			var app = File.Exists( path ) ? SaveData.DeserializeJson<PoolApp>( path ) : new PoolApp( appName );
 			var setting = Program.settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
 
+            
+
+
+
             //I debated on whether or not this if statement should go in this order
             //i'm still hung up, but this looks elegant.
+
+
 
 			//if the current page has a profile
 			if ( app.poolPackets.Any() )
