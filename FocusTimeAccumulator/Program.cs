@@ -6,9 +6,9 @@ class Program
 {
 	//possibly bad way to hold data
 	static string file = "apps.json";
-	static string appSettingfile = "sharedApps.json";
-	static float idleTime=3;
-	static bool idleModeEnabled = true;
+	static string appSettingfile = "settings.json";
+	static Settings settings; 
+
 	//app is the process without a title, page is the process title
 	//in the json edit the shared bool to true on apps
 	//which you don't want to save individual page titles on
@@ -20,7 +20,6 @@ class Program
 	static DateTime now = DateTime.Now;
 
 	static List<App> apps;
-	static List<AppSetting> appSettings;
 	static System.Timers.Timer timer = new System.Timers.Timer( );
 	public static async Task Main( )
 	{
@@ -28,16 +27,19 @@ class Program
 		apps = File.Exists( file ) ? SaveData.DeserializeJson<List<App>>( file ) : new( );
 		if ( File.Exists( appSettingfile ) )
 		{
-			appSettings = SaveData.DeserializeJson<List<AppSetting>>( appSettingfile );
+			settings = SaveData.DeserializeJson<Settings>( appSettingfile );
 		} else
 		{
-			appSettings = new( );
-			appSettings.Add( new( ) { proc = "", shared = true } );
-			SaveData.SerializeJson( appSettingfile, appSettings );
+			settings = new( );
+			settings.idleModeEnabled = true;
+			settings.tickTime = TimeSpan.FromSeconds(1);
+			settings.idleTime = TimeSpan.FromMinutes(3);
+			settings.appSettings.Add( new( ) { proc = "", shared = true } );
+			SaveData.SerializeJson( appSettingfile, settings );
 		}
 		//set up timer to tick every second
 		timer.Elapsed += ( _, _ ) => Tick( );
-		timer.Interval = 1000;
+		timer.Interval = settings.tickTime.TotalMilliseconds;
 		//start timer and then hold the program open indefinitely
 		timer.Start( );
 		await Task.Delay( -1 );
@@ -50,12 +52,13 @@ class Program
 		var appTitle = appProcess?.MainWindowTitle ?? "Unknown";
 		var lastInput = FocusFinder.WindowsProcessFocusApi.GetLastInputTime( );
 
-		if ( idleModeEnabled && ( DateTime.Now - lastInput ).TotalMinutes > idleTime )
+		if ( settings.idleModeEnabled && ( DateTime.Now - lastInput ) > settings.idleTime )
 			appTitle = appTitle.Insert( 0, "[Idle] " );
 
 		if ( appTitle.Length > 128 )
 			appTitle = appTitle.Substring( 0, 128 );
 
+		var appSettings = settings.appSettings;
 		if ( currentActivePage != appTitle )
 		{
 			(prev, now) = (now, DateTime.Now);
