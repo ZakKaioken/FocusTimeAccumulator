@@ -4,13 +4,20 @@
 	public class App
 	{
 		public string name;
-		public string proc;
-		public TimeSpan span;
+		public List<AppSpan> packets = new List<AppSpan>();
+
+		public App( string procName )
+		{
+			name = procName;
+		}
+
+		[Serializable]
+		public class AppSpan
+		{
+			public string pageTitle;
+			public TimeSpan span;
+			public DateTime time;
+		}
 	}
 
-	[Serializable]
-	public class AppSetting {
-		public string proc;
-		public bool shared;
-	}
 }

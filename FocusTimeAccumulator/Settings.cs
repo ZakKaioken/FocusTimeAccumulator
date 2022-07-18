@@ -13,5 +13,13 @@ namespace FocusTimeAccumulator
 		public TimeSpan tickTime = TimeSpan.FromSeconds( 1 );
 		public bool idleModeEnabled = true;
 		public List<AppSetting> appSettings = new List<AppSetting>( );
+
+		[Serializable]
+		public class AppSetting
+		{
+			public string proc;
+			public bool shared;
+		}
+
 	}
 }

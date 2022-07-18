@@ -6,6 +6,7 @@ namespace FocusTimeAccumulator
 	{
 		public static void SerializeJson<T>( string filePath, T objectToWrite )
 		{
+			CreateMissingPath( filePath );
 			using ( StreamWriter file = File.CreateText( filePath ) )
 			{
 				JsonSerializer ser = new JsonSerializer( );
@@ -19,6 +20,13 @@ namespace FocusTimeAccumulator
 				JsonSerializer serializer = new JsonSerializer( );
 				return (T)serializer.Deserialize( file, typeof( T ) );
 			}
+		}
+
+		static void CreateMissingPath( string path )
+		{
+			var directory = Path.GetFullPath( path ).Replace( Path.GetFileName( path ), "" );
+			if ( !Directory.Exists( directory ) )
+				Directory.CreateDirectory( directory );
 		}
 	}
 }
