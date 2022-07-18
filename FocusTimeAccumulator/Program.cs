@@ -1,15 +1,16 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using FocusTimeAccumulator;
-using FocusTimeAccumulator.Features;
+using FocusTimeAccumulator.Features.Bucket;
+using FocusTimeAccumulator.Features.Pool;
 
 class Program
 {
 	//possibly bad way to hold data
 	static string file = "apps.json";
 	static string appSettingfile = "settings.json";
-	public static Settings settings; 
-
+	public static Settings settings;
 	//app is the process without a title, page is the process title
 	//in the json edit the shared bool to true on apps
 	//which you don't want to save individual page titles on
@@ -21,29 +22,21 @@ class Program
 	public static DateTime now = DateTime.Now;
 
 	static FocusPool pool = new FocusPool( );
+	static FocusBucket bucket = new FocusBucket( );
 
-	static List<App> apps;
 	static System.Timers.Timer timer = new System.Timers.Timer( );
 	public static async Task Main( )
 	{
-		//make a new list for storing saved app data
-		
+		//if the settings exist
 		if ( File.Exists( appSettingfile ) )
-		{
 			settings = SaveData.DeserializeJson<Settings>( appSettingfile );
-		} else
+		else
 		{
-			settings = new( )
-			{
-				idleModeEnabled = true,
-				tickTime = TimeSpan.FromSeconds( 1 ),
-				idleTime = TimeSpan.FromMinutes( 3 )
-			};
-			settings.appSettings.Add( new( ) { proc = "", shared = true } );
-			SaveData.SerializeJson( appSettingfile, settings );
+			settings = new( ); //this was exposed, but i don't need it to be anymore
+			SaveData.SerializeJson( appSettingfile, settings ); //save settings immediately
 		}
-		//set up timer to tick every second
-		timer.Elapsed += ( _, _ ) => Tick( );
+		//set up timer to tick at the timespan set in the settings
+		timer.Elapsed += ( _, _ ) => Tick( ); 
 		timer.Interval = settings.tickTime.TotalMilliseconds;
 		//start timer and then hold the program open indefinitely
 		timer.Start( );
@@ -57,22 +50,30 @@ class Program
 		var appTitle = appProcess?.MainWindowTitle ?? "Unknown";
 		var lastInput = FocusFinder.WindowsProcessFocusApi.GetLastInputTime( );
 
+		//if we did not get an input device ping in more than (settings.idleTime), add [Idle] tag to process
 		if ( settings.idleModeEnabled && ( DateTime.Now - lastInput ) > settings.idleTime )
 			appTitle = appTitle.Insert( 0, "[Idle] " );
 
-		if ( appTitle.Length > 128 )
-			appTitle = appTitle.Substring( 0, 128 );
+		//limit app titles based on character length
+		if ( appTitle.Length > settings.maxTitleLength )
+			appTitle = appTitle[..settings.maxTitleLength ];
 
-		var appSettings = settings.appSettings;
+		//if the process name or title changes
 		if ( currentActivePage != appTitle || currentActiveApp != appName)
-		{
+		{	//do a global swap, swap prev with what now was last tick
 			(prev, now) = (now, DateTime.Now);
 
-			pool.DoFocusPool(appName, appTitle, PathMode.Daily );
+			//check the flags to see if the user wants to run both pool and or buckets at the same time
+			if (settings.focusSetting.HasFlag(Settings.FocusSetting.pool))
+				pool.DoFocusPool( currentActiveApp, currentActivePage, PathMode.Daily );
+			if ( settings.focusSetting.HasFlag( Settings.FocusSetting.bucket ) )
+				bucket.DoFocusBucket( currentActiveApp, currentActivePage, PathMode.Daily );
 
+			//set old name and title
 			currentActiveApp = appName;
 			currentActivePage = appTitle;
 		}
 	}
+	
 
 }
