@@ -10,7 +10,7 @@ namespace FocusTimeAccumulator.Features.Bucket
 		{
 			(prev, now) = (now, DateTime.Now);
 
-			string path = SaveData.CreatePath( appName, settings.poolFileStructure, settings.timeStampFormat );
+			string path = SaveData.CreatePath( appName, settings.bucketFileStructure, settings.timeStampFormat );
 			var app = new BucketApp( appName );
 			
 			//make an app for this item, without profile checking (the file seperates buckets based on process and path mode)

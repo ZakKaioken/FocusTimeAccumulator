@@ -12,7 +12,8 @@ namespace FocusTimeAccumulator
 			CreateMissingPath( filePath );
 			using ( StreamWriter file = File.CreateText( filePath ) )
 			{
-				JsonSerializer ser = new JsonSerializer( );
+				JsonSerializer ser = new JsonSerializer();
+				ser.Formatting = Formatting.Indented;
 				ser.Serialize( file, objectToWrite );
 			}
 		}
