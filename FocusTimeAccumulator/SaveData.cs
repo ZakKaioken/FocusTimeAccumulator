@@ -32,17 +32,14 @@ namespace FocusTimeAccumulator
 			if ( !Directory.Exists( directory ) )
 				Directory.CreateDirectory( directory );
 		}
-		public static string GetFilePath( string appName, PathMode mode )
+		public static string CreatePath( string appName, string stucture, string timeFormat )
 		{
-			var now = DateTime.Now;
-			StringBuilder stringbuilder = new( $"{appName} " );
-			if ( mode.HasFlag( PathMode.Daily ) )
-				stringbuilder.Append( now.ToString( "d" ) ).Replace( $"/", " " );
-			else if ( mode.HasFlag( PathMode.Monthly ) )
-				stringbuilder.Append( now.ToString( "mm yyyy" ) );
-
-			stringbuilder.Append( ".json" );
-			return stringbuilder.ToString( );
+			StringBuilder sb = new StringBuilder( stucture );
+			sb.Replace( "/", "\\" ); //support forward slashes in directory as backslashes
+			sb.Replace( @"{t}", Program.now.ToString( timeFormat ) );
+			sb.Replace( @"{p}", appName );
+			var path = sb.ToString( );
+			return path;
 		}
 	}
 }

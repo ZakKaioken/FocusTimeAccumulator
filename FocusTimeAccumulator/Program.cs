@@ -83,9 +83,9 @@ class Program
 
 			//check the flags to see if the user wants to run both pool and or buckets at the same time
 			if (settings.focusSetting.HasFlag(Settings.FocusSetting.pool))
-				pool.DoFocusPool( currentActiveApp, currentActivePage, PathMode.Daily );
+				pool.DoFocusPool( currentActiveApp, currentActivePage );
 			if ( settings.focusSetting.HasFlag( Settings.FocusSetting.bucket ) )
-				bucket.DoFocusBucket( currentActiveApp, currentActivePage, PathMode.Daily );
+				bucket.DoFocusBucket( currentActiveApp, currentActivePage );
 
 			//set old name and title
 			currentActiveApp = appName;

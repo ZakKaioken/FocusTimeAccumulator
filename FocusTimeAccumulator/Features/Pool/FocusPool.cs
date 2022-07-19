@@ -3,49 +3,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Program;
 
 namespace FocusTimeAccumulator.Features.Pool
 {
     public class FocusPool
     {
-        DateTime prev => Program.prev;
-        DateTime now => Program.now;
 
         //this function name could go for an improvement
-        public void DoFocusPool( string appName, string appTitle, PathMode pathMode)
+        public void DoFocusPool( string appName, string appTitle)
         {
-			var file = SaveData.GetFilePath( appName, pathMode );
-			var path = Path.Combine( "Apps", "Pools", file );
-			var app = File.Exists( path ) ? SaveData.DeserializeJson<PoolApp>( path ) : new PoolApp( appName );
-			var setting = Program.settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
+;
 
-            
-
-
-
+            string path = SaveData.CreatePath( appName, settings.poolFileStructure, settings.timeStampFormat );
+            var app = File.Exists( path ) ? SaveData.DeserializeJson<PoolApp>( path ) : new PoolApp( appName );
+            var setting = settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
             //I debated on whether or not this if statement should go in this order
             //i'm still hung up, but this looks elegant.
-
-
-
-			//if the current page has a profile
-			if ( app.poolPackets.Any() )
+            //if the current page has a profile
+            if ( app.poolPackets.Any( ) )
             {
                 //check if the profile belongs to a shared app
-                if (setting != null && setting.shared)
-                    UpdateSharedApp(app);
+                if ( setting != null && setting.shared )
+                    UpdateSharedApp( app );
                 else//if it's not a shared app
-                    UpdateApp(app, appTitle);
+                    UpdateApp( app, appTitle );
             }
 
-            if (setting != null && setting.shared)
-                CreateSharedApp(app);
+            if ( setting != null && setting.shared )
+                CreateSharedApp( app );
             else
-                CreateApp(app, appTitle);
+                CreateApp( app, appTitle );
 
-            app.poolPackets = app.poolPackets.OrderBy(d => d.time).ToList();//sort based on time
-			SaveData.SerializeJson( path, app ); //save json
-		}
+            app.poolPackets = app.poolPackets.OrderBy( d => d.time ).ToList( );//sort based on time
+            SaveData.SerializeJson( path, app ); //save json
+        }
+
+        
 
         void UpdateApp( PoolApp app, string title)
         {
@@ -104,12 +98,5 @@ namespace FocusTimeAccumulator.Features.Pool
 				} );
             }
         }
-    }
-    [Flags]
-    public enum PathMode
-    {
-        JustAppName = 1,
-        Daily = 1 << 1,
-        Monthly = 1 << 2
     }
 }

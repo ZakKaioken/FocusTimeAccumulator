@@ -4,19 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FocusTimeAccumulator.Features.Pool;
-
+using static Program;
 namespace FocusTimeAccumulator.Features.Bucket
 {
     public class FocusBucket
     {
-		DateTime prev => Program.prev;
-		DateTime now => Program.now;
-		public void DoFocusBucket( string appName, string appTitle, PathMode pathMode )
+		public void DoFocusBucket( string appName, string appTitle )
         {
-			var file = SaveData.GetFilePath( appName, pathMode );
-			var path = Path.Combine( "Apps", "Buckets", file );
+			string path = SaveData.CreatePath( appName, settings.poolFileStructure, settings.timeStampFormat );
 			var app = File.Exists( path ) ? SaveData.DeserializeJson<BucketApp>( path ) : new BucketApp( appName );
-			var setting = Program.settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
+			var setting = settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
 			
 			//make an app for this item, without profile checking (the file seperates buckets based on process and path mode)
 			CreateApp( app, appTitle );
@@ -36,7 +33,7 @@ namespace FocusTimeAccumulator.Features.Bucket
 			}
 			else //if there is an id just get the id back
 				id = app.titles[ pageTitle ];
-				//calculate timespan
+			//calculate timespan
 			var span = now - prev;
 			app.poolPackets.Add( new( )
 			{

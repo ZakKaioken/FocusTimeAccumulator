@@ -13,6 +13,9 @@ namespace FocusTimeAccumulator
 		public TimeSpan tickTime = TimeSpan.FromSeconds( 1 );
 		public int maxTitleLength = 128;
 		public bool idleModeEnabled = true;
+		public string timeStampFormat = "d";
+		public string poolFileStructure = @"Apps/Pools/{t}/{p}.json";
+		public string bucketFileStructure = @"Apps/Buckets/{t}/{p}.json";
 		public FocusSetting focusSetting = FocusSetting.pool;
 		public List<AppSetting> appSettings = new List<AppSetting>( );
 		public List<string> similarSuggestions = new List<string>( );
