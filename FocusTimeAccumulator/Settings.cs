@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FocusTimeAccumulator
+﻿namespace FocusTimeAccumulator
 {
 	[Serializable]
 	public class Settings
@@ -12,29 +6,28 @@ namespace FocusTimeAccumulator
 		public TimeSpan idleTime = TimeSpan.FromMinutes( 3 );
 		public TimeSpan tickTime = TimeSpan.FromSeconds( 1 );
 		public int maxTitleLength = 128;
+		public bool doPoolSimilarityChecking = true;
 		public bool idleModeEnabled = true;
 		public string timeStampFormat = "d";
 		public string poolFileStructure = @"Apps/Pools/{t}/{p}.json";
 		public string bucketFileStructure = @"Apps/Buckets/{t}/{p}.json";
 		public FocusSetting focusSetting = FocusSetting.pool;
 		public List<AppSetting> appSettings = new List<AppSetting>( );
-		public List<string> similarSuggestions = new List<string>( );
-		public Settings() {
-			appSettings.Add(new() { 
-					proc = "",
-					similarTitles = "",
-					combineSimilarTitles = false, 
-					shared = false
-			});
+		public List<SimilarTitles> similarTitles = new List<SimilarTitles>( );
+		
+		[Serializable]
+		public class SimilarTitles
+		{
+			public string proc = "";
+			public List<string> titles = new( );
+			public bool combineSimilarTitles = true;
 		}
 
 		[Serializable]
 		public class AppSetting
 		{
-			public string proc;
-			public string similarTitles;
-			public bool shared;
-			public bool combineSimilarTitles;
+			public string proc = "";
+			public bool shared = false;
 		}
 
 		[Flags]

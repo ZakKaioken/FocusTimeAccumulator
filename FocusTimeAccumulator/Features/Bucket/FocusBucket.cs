@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FocusTimeAccumulator.Features.Pool;
-using static Program;
+﻿using static Program;
 namespace FocusTimeAccumulator.Features.Bucket
 {
-    public class FocusBucket
-    {
+	public class FocusBucket
+	{
+
+		public DateTime prev = DateTime.Now;
+		public DateTime now = DateTime.Now;
 		public void DoFocusBucket( string appName, string appTitle )
-        {
+		{
+			(prev, now) = (now, DateTime.Now);
+
 			string path = SaveData.CreatePath( appName, settings.poolFileStructure, settings.timeStampFormat );
 			var app = File.Exists( path ) ? SaveData.DeserializeJson<BucketApp>( path ) : new BucketApp( appName );
 			var setting = settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
-			
+
 			//make an app for this item, without profile checking (the file seperates buckets based on process and path mode)
 			CreateApp( app, appTitle );
 
@@ -37,8 +36,8 @@ namespace FocusTimeAccumulator.Features.Bucket
 			var span = now - prev;
 			app.poolPackets.Add( new( )
 			{
-				pageTitle = id, 
-				time = DateTime.Now-span, //subtract span from now to get start time
+				pageTitle = id,
+				time = DateTime.Now - span, //subtract span from now to get start time
 				span = span //set the span
 			} );
 		}

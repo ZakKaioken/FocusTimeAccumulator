@@ -4,8 +4,8 @@
     public class PoolApp
     {
         public string name;
-        public List<AppSpan> poolPackets = new List<AppSpan>();
-        public PoolApp(string procName)
+        public List<AppSpan> poolPackets = new List<AppSpan>( );
+        public PoolApp( string procName )
         {
             name = procName;
         }
@@ -16,6 +16,7 @@
             public string pageTitle;
             public TimeSpan span;
             public DateTime time;
+            public int focusCount = 0;
         }
     }
 

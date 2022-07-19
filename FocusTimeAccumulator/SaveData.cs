@@ -1,12 +1,11 @@
-﻿using FocusTimeAccumulator.Features.Pool;
-using System.Text;
+﻿using System.Text;
 using Newtonsoft.Json;
 
 namespace FocusTimeAccumulator
 {
 	internal class SaveData
 	{
-		
+
 		public static void SerializeJson<T>( string filePath, T objectToWrite )
 		{
 			//make the folder structure for the file in the case it's missing
@@ -36,7 +35,7 @@ namespace FocusTimeAccumulator
 		{
 			StringBuilder sb = new StringBuilder( stucture );
 			sb.Replace( "/", "\\" ); //support forward slashes in directory as backslashes
-			sb.Replace( @"{t}", Program.now.ToString( timeFormat ) );
+			sb.Replace( @"{t}", DateTime.Now.ToString( timeFormat ).Replace("/", " ") );
 			sb.Replace( @"{p}", appName );
 			var path = sb.ToString( );
 			return path;
