@@ -32,12 +32,13 @@ namespace FocusTimeAccumulator
 			if ( !Directory.Exists( directory ) )
 				Directory.CreateDirectory( directory );
 		}
-		public static string CreatePath( string appName, string stucture, string timeFormat )
+		public static string CreatePath( string appName, string feature, string stucture, string timeFormat )
 		{
-			StringBuilder sb = new StringBuilder( stucture );
+			StringBuilder sb = new( stucture );
 			sb.Replace( "/", "\\" ); //support forward slashes in directory as backslashes
-			sb.Replace( @"{t}", DateTime.Now.ToString( timeFormat ).Replace("/", " ") );
-			sb.Replace( @"{p}", appName );
+			sb.Replace( @"{time}", DateTime.Now.ToString( timeFormat ).Replace("/", " ") );
+			sb.Replace( @"{process}", appName );
+			sb.Replace( @"{feature}", feature );
 			var path = sb.ToString( );
 			return path;
 		}

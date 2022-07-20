@@ -9,8 +9,12 @@
 		public bool doPoolSimilarityChecking = true;
 		public bool idleModeEnabled = true;
 		public string timeStampFormat = "d";
-		public string poolFileStructure = @"Apps/Pools/{t}/{p}.json";
-		public string bucketFileStructure = @"Apps/Buckets/{t}/{p}.json";
+		public string fileStructure = @"Apps/{feature}/{time}/{process}.json";
+		public string poolAppCreated = "{time}-[Pool Add]: {title} added after being focused for {span}";
+		public string poolAppUpdated = "{time}-[Pool Update]: {title} was focused for {span}. Total Time {totalTime}";
+		public string poolSharedAppCreated = "{time}-[Shared Pool Add]: {process} added after being focused for {span}";
+		public string poolSharedAppUpdated = "{time}-[Shared Pool Update]: {process} was focused for {span}. Total Time {totalTime}";
+		public string bucketAdd = "{time}-[Bucket Add]: {process}({title}) was focused for {span}";
 		public FocusSetting focusSetting = FocusSetting.pool;
 		public List<AppSetting> appSettings = new List<AppSetting>( );
 		public List<SimilarTitles> similarTitles = new List<SimilarTitles>( );

@@ -1,4 +1,7 @@
-﻿using FocusTimeAccumulator.Features.Similarity;
+﻿using System;
+using System.Net.Sockets;
+using FocusTimeAccumulator.Features.Similarity;
+using FocusTimeAccumulator.IO;
 using static Program;
 
 namespace FocusTimeAccumulator.Features.Pool
@@ -13,7 +16,7 @@ namespace FocusTimeAccumulator.Features.Pool
 		//this function name could go for an improvement
 		public void DoFocusPool( string appName, string appTitle )
         {
-			string path = SaveData.CreatePath( appName, settings.poolFileStructure, settings.timeStampFormat );
+			string path = SaveData.CreatePath( appName, "Pools", settings.fileStructure, settings.timeStampFormat );
 			var app = File.Exists( path ) ? SaveData.DeserializeJson<PoolApp>( path ) : new PoolApp( appName );
 			var setting = settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
 
@@ -61,25 +64,28 @@ namespace FocusTimeAccumulator.Features.Pool
             if ( packets.Any( ) )
             {
                 var packet = packets[ 0 ];
+                var span = now - prev;
                 packet.span += now - prev; //update span
                 packet.focusCount++;
-                Console.WriteLine( $"exiting {title} after {now - prev}. total time: {packet.span}" );
+                var message = MessageBuilder.BuildMessage( settings.poolAppUpdated, now, app.name, title, span, packet.span );
+                Console.WriteLine( message );
             }
         }
 
-        void CreateApp( PoolApp app, string pageTitle )
+        void CreateApp( PoolApp app, string title )
         {
             //if there is no profile for this title
-            var aps = app.poolPackets.Where( a => a.pageTitle == pageTitle );
+            var aps = app.poolPackets.Where( a => a.pageTitle == title );
             if ( !aps.Any( ) )
             {
-                Console.WriteLine( $"adding new app: {pageTitle}" );
                 //add a new aoo
                 var span = now - prev;
-                app.poolPackets.Add( new( )
+				var message = MessageBuilder.BuildMessage( settings.poolAppCreated, now, app.name, title, span );
+				Console.WriteLine( message );
+				app.poolPackets.Add( new( )
                 {
                     focusCount = 1,
-                    pageTitle = pageTitle,
+                    pageTitle = title,
                     time = DateTime.Now - span, //subtract span from now to get start time
                     span = span //set the span
                 } );
@@ -92,9 +98,12 @@ namespace FocusTimeAccumulator.Features.Pool
             if ( app.poolPackets.Any( ) )
             {
                 var packet = app.poolPackets[ 0 ]; //increase it's span
-                packet.span += now - prev;
+                var span = now - prev;
+                packet.span += span;
 				packet.focusCount++;
-				Console.WriteLine( $"exiting shared app {app.name} after {now - prev}. total time: {packet.span}" );
+
+				var message = MessageBuilder.BuildMessage( settings.poolSharedAppUpdated, now, app.name, "", span, packet.span );
+				Console.WriteLine( message );
             }
         }
 
@@ -103,9 +112,10 @@ namespace FocusTimeAccumulator.Features.Pool
             //if there are no profiles for this process, make a new one
             if ( !app.poolPackets.Any( ) )
             {
-                Console.WriteLine( $"adding new shared app: {app.name}" );
 
-                var span = now - prev;
+				var span = now - prev;
+				var message = MessageBuilder.BuildMessage( settings.poolAppCreated, now, app.name, "", span );
+				Console.WriteLine( message );
                 app.poolPackets.Add( new( )
                 {
                     focusCount = 1,
