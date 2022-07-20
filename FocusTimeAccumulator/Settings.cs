@@ -14,6 +14,8 @@
 		public string poolAppUpdated = "[Pool Update]: {title} was focused for {span}. Total Time {totalTime}";
 		public string poolSharedAppCreated = "[Shared Pool Add]: {process} added after being focused for {span}";
 		public string poolSharedAppUpdated = "[Shared Pool Update]: {process} was focused for {span}. Total Time {totalTime}";
+		public string poolMerge = "[Pool Merge]: 3 Duplicate titles of {process} found. Merging all similar titles from now on.";
+		public string bucketMerge = "[Bucket Merge]: 3 Duplicate titles of {process} found. Merging all similar titles from now on.";
 		public string bucketAdd = "[Bucket Add]: {process}({title}) was focused for {span}";
 		public FocusSetting focusSetting = FocusSetting.pool;
 		public FocusSetting focusConsoleSetting = FocusSetting.pool;

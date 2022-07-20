@@ -11,7 +11,7 @@ namespace FocusTimeAccumulator.Features.Pool
         public DateTime prev = DateTime.Now;
         public DateTime now = DateTime.Now;
 
-		public string previousTitle;
+		public string previousTitle="oil";
 
 		//this function name could go for an improvement
 		public void DoFocusPool( string appName, string appTitle )
@@ -26,7 +26,7 @@ namespace FocusTimeAccumulator.Features.Pool
             //i want to check and merge the similar items in the pool that are marked as merge in settings
             if ( settings.doPoolSimilarityChecking )
             {// this is really bad :(
-                appTitle = SimilarityCheck.GetSimilarPoolTitle( ref app, path, appName, appTitle );
+                appTitle = SimilarityCheck.GetSimilarPoolTitle( app, path, appName, appTitle );
 
                 //wierd redo of the tech in the program.cs
                 //this does change detection but with similar titles in mind

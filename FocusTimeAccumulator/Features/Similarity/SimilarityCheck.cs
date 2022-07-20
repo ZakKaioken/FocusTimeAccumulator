@@ -1,13 +1,15 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using FocusTimeAccumulator.Features.Bucket;
 using FocusTimeAccumulator.Features.Pool;
+using FocusTimeAccumulator.IO;
 using static Program;
 namespace FocusTimeAccumulator.Features.Similarity
 {
 	public class SimilarityCheck
 	{
 		//this code is going to practically be a duplicate itself
-		public static string GetSimilarPoolTitle( ref PoolApp app, string path, string appName, string appTitle )
+		public static string GetSimilarPoolTitle( PoolApp app, string path, string appName, string appTitle )
 		{
 			var similarPackets = app.poolPackets.Where( p => LevenshteinDistance.Calculate( p.pageTitle, appTitle ) < 5 );
 
@@ -37,8 +39,11 @@ namespace FocusTimeAccumulator.Features.Similarity
 
 				var main = similarPackets.First( );
 				//ideally this should not run twice on the same item
-				Console.WriteLine( $"duplicate \"{main.pageTitle}\" found. Merging all duplicates of this app from now on. you can disable this feature or rename a merged app name in the {appSettingfile} file" );
-				
+				if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
+				{
+					var message = MessageBuilder.BuildMessage( settings.poolMerge, DateTime.Now, app.name, appTitle, TimeSpan.Zero );
+					Console.WriteLine( message );
+				}
 				
 				var dead = similarPackets.Where( s => s != main );
 				foreach ( var packet in dead.ToList() )
@@ -53,12 +58,11 @@ namespace FocusTimeAccumulator.Features.Similarity
 			appTitle = tt;
 			return appTitle;
 		}
-		/* here lies the body of a function i haven't wrote yet
-		public static string GetSimilarBucketTitle( ref BucketApp app, string path, string appName, string appTitle )
+		
+		public static string GetSimilarBucketTitle( BucketApp app, string path, string appName, string appTitle )
 		{
-			var similarPackets = app.poolPackets.Where( p => LevenshteinDistance.Calculate( p.pageTitle, appTitle ) < 5 );
-			
-			//get a profile
+			var similarTitles = app.titles.Where( p => LevenshteinDistance.Calculate( p.Key, appTitle ) < 5 );
+
 			Settings.SimilarTitles profile = null;
 			var profiles = settings.similarTitles.Where( t => t.proc == appName );
 			if ( !profiles.Any( ) )
@@ -71,10 +75,11 @@ namespace FocusTimeAccumulator.Features.Similarity
 				if ( p.combineSimilarTitles )
 					profile = p;
 			}
+
 			//if there are titles that are similar inside the profile
 			var titles = profile.titles.Where( ss => { var x = LevenshteinDistance.Calculate( ss, appTitle ); return x is < 10 and > 0; } );
 
-			if ( similarPackets.Count( ) > 2 && !titles.Any( ) )
+			if ( similarTitles.Count( ) > 2 && !titles.Any( ) )
 			{
 				//only add the similar titles profile to settings if we add titles to it
 				if ( !profiles.Any( ) )
@@ -82,24 +87,29 @@ namespace FocusTimeAccumulator.Features.Similarity
 				//add the similar title to the settings and then save it
 				profile.titles.Add( appTitle );
 
-				var main = similarPackets.First( );
-				//ideally this should not run twice on the same item
-				Console.WriteLine( $"duplicate \"{main.pageTitle}\" found. Merging all duplicates of this app from now on. you can disable this feature or rename a merged app name in the {appSettingfile} file" );
+				var main = similarTitles.First( );
 
+				if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.bucket ) )
+				{
+					var message = MessageBuilder.BuildMessage( settings.bucketMerge, DateTime.Now, app.name, appTitle, TimeSpan.Zero );
+					Console.WriteLine( message );
+				}
 
-				var dead = similarPackets.Where( s => s != main );
+				var dead = similarTitles.Where( s => s.Value != main.Value );
 				foreach ( var packet in dead.ToList( ) )
 				{
-					main.span += packet.span;
-					main.focusCount += packet.focusCount;
-					app.poolPackets.Remove( packet );
+					var tb = app.poolPackets.Where( o => o.pageTitle == packet.Value );
+					foreach (var t in tb) {
+						t.pageTitle = main.Value;
+					}
+					app.titles.Remove( packet.Key );
 				}
 				SaveData.SerializeJson( appSettingfile, settings ); //save new suggestion
 			}
 			var tt = titles.Any( ) ? titles.First( ) : appTitle;
 			appTitle = tt;
 			return appTitle;
-		}*/
+		}
 
 	}
 }
