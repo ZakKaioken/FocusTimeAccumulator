@@ -36,9 +36,11 @@ namespace FocusTimeAccumulator.Features.Bucket
 				id = app.titles[ title ];
 			//calculate timespan
 			var span = now - prev;
-
-			var message = MessageBuilder.BuildMessage( settings.bucketAdd, now, app.name, title, span );
-			Console.WriteLine( message );
+			if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
+			{
+				var message = MessageBuilder.BuildMessage( settings.bucketAdd, now, app.name, title, span );
+				Console.WriteLine( message );
+			}
 			app.poolPackets.Add( new( )
 			{
 				pageTitle = id,

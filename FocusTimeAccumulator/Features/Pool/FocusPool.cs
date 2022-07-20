@@ -67,8 +67,11 @@ namespace FocusTimeAccumulator.Features.Pool
                 var span = now - prev;
                 packet.span += now - prev; //update span
                 packet.focusCount++;
-                var message = MessageBuilder.BuildMessage( settings.poolAppUpdated, now, app.name, title, span, packet.span );
-                Console.WriteLine( message );
+                if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
+                {
+                    var message = MessageBuilder.BuildMessage( settings.poolAppUpdated, now, app.name, title, span, packet.span );
+                    Console.WriteLine( message );
+                }
             }
         }
 
@@ -80,8 +83,12 @@ namespace FocusTimeAccumulator.Features.Pool
             {
                 //add a new aoo
                 var span = now - prev;
-				var message = MessageBuilder.BuildMessage( settings.poolAppCreated, now, app.name, title, span );
-				Console.WriteLine( message );
+
+                if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
+                {
+                    var message = MessageBuilder.BuildMessage( settings.poolAppCreated, now, app.name, title, span );
+                    Console.WriteLine( message );
+                }
 				app.poolPackets.Add( new( )
                 {
                     focusCount = 1,
@@ -101,9 +108,11 @@ namespace FocusTimeAccumulator.Features.Pool
                 var span = now - prev;
                 packet.span += span;
 				packet.focusCount++;
-
-				var message = MessageBuilder.BuildMessage( settings.poolSharedAppUpdated, now, app.name, "", span, packet.span );
-				Console.WriteLine( message );
+                if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
+                {
+                    var message = MessageBuilder.BuildMessage( settings.poolSharedAppUpdated, now, app.name, "", span, packet.span );
+                    Console.WriteLine( message );
+                }
             }
         }
 
@@ -114,8 +123,11 @@ namespace FocusTimeAccumulator.Features.Pool
             {
 
 				var span = now - prev;
-				var message = MessageBuilder.BuildMessage( settings.poolAppCreated, now, app.name, "", span );
-				Console.WriteLine( message );
+                if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
+                {
+                    var message = MessageBuilder.BuildMessage( settings.poolAppCreated, now, app.name, "", span );
+                    Console.WriteLine( message );
+                }
                 app.poolPackets.Add( new( )
                 {
                     focusCount = 1,
