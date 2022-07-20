@@ -23,12 +23,12 @@ namespace FocusTimeAccumulator.Features.Pool
             //i want to check and merge the similar items in the pool that are marked as merge in settings
             if ( settings.doPoolSimilarityChecking )
             {// this is really bad :(
-                appTitle = SimilarityCheck.GetSimilarTitle( ref app, path, appName, appTitle );
+                appTitle = SimilarityCheck.GetSimilarPoolTitle( ref app, path, appName, appTitle );
 
                 //wierd redo of the tech in the program.cs
                 //this does change detection but with similar titles in mind
                 //this was made here because we don't want the similar tech in buckets
-                if ( appTitle == previousTitle )
+                if ( !Program.exiting && appTitle == previousTitle )
                     return;
                 previousTitle = appTitle;
             }
