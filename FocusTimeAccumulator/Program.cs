@@ -62,42 +62,44 @@ class Program
 	}
 
 	public static void TickThread( ) {
-
-		//better foreground process finding suggestion from issue #2
-		var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( );
-		var appName = appProcess?.ProcessName ?? "Unknown";
-		var appTitle = appProcess?.MainWindowTitle ?? "Unknown";
-		var lastInput = FocusFinder.WindowsProcessFocusApi.GetLastInputTime( );
-
-		//if we did not get an input device ping in more than (settings.idleTime), add [Idle] tag to process
-		if ( settings.idleModeEnabled && ( DateTime.Now - lastInput ) > settings.idleTime )
-			appTitle = appTitle.Insert( 0, "[Idle] " );
-
-		//limit app titles based on character length
-		if ( appTitle.Length > settings.maxTitleLength )
-			appTitle = appTitle[ ..settings.maxTitleLength ];
-
-		//if the process name or title changes
-		if ( exiting || ( prevTitle != appTitle || prevName != appName) )
+		try
 		{
-			//check the flags to see if the user wants to run both pool and or buckets at the same time
-			if ( settings.focusSetting.HasFlag( Settings.FocusSetting.pool ) )
-				pool.DoFocusPool( prevName, prevTitle );
 
-			if ( settings.focusSetting.HasFlag( Settings.FocusSetting.bucket ) )
-				bucket.DoFocusBucket( prevName, prevTitle );
+			//better foreground process finding suggestion from issue #2
+			var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( );
+			var appName = appProcess?.ProcessName ?? "Unknown";
+			var appTitle = appProcess?.MainWindowTitle ?? "Unknown";
+			var lastInput = FocusFinder.WindowsProcessFocusApi.GetLastInputTime( );
 
-			//set old name and title
-			prevName = appName;
-			prevTitle = appTitle;
-			Thread.Sleep( 3000 );
-			if ( exiting )
+			//if we did not get an input device ping in more than (settings.idleTime), add [Idle] tag to process
+			if ( settings.idleModeEnabled && ( DateTime.Now - lastInput ) > settings.idleTime )
+				appTitle = appTitle.Insert( 0, "[Idle] " );
+
+			//limit app titles based on character length
+			if ( appTitle.Length > settings.maxTitleLength )
+				appTitle = appTitle[ ..settings.maxTitleLength ];
+
+			//if the process name or title changes
+			if ( exiting || ( prevTitle != appTitle || prevName != appName ) )
 			{
-				Console.WriteLine( $"saved you can now safely close the terminal" );
-				Environment.Exit( 0 );
-			}
-		}
+				//check the flags to see if the user wants to run both pool and or buckets at the same time
+				if ( settings.focusSetting.HasFlag( Settings.FocusSetting.pool ) )
+					pool.DoFocusPool( prevName, prevTitle );
 
+				if ( settings.focusSetting.HasFlag( Settings.FocusSetting.bucket ) )
+					bucket.DoFocusBucket( prevName, prevTitle );
+
+				//set old name and title
+				prevName = appName;
+				prevTitle = appTitle;
+				Thread.Sleep( 3000 );
+				if ( exiting )
+				{
+					Console.WriteLine( $"saved you can now safely close the terminal" );
+					Environment.Exit( 0 );
+				}
+			}
+		} catch (Exception e) { Console.WriteLine( e ); }
 	}
 
 }
