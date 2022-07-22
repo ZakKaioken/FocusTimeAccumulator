@@ -14,6 +14,7 @@ namespace FocusTimeAccumulator.IO
 			sb.Replace( @"{process}", process ).Replace( @"{title}", title );
 			sb.Replace( @"{span}", span.ToString( ) );
 			sb.Replace( @"{totalTime}", totalTime.ToString( ) );
+
 			return sb.ToString();
 		}
 	}
