@@ -36,11 +36,7 @@ class Program
 			e.Cancel = true;
 			exiting = true;
 			Console.WriteLine( "ctrl+c was pressed, saving..." );
-			var thread = new Thread( TickThread );
-			threads.Add( thread );
-			thread.IsBackground = false;
-		
-			thread.Start( );
+			AddThread( );
 		};
 		//start timer and then hold the program open indefinitely
 		timer.Start( );
@@ -51,14 +47,19 @@ class Program
 
 	static List<Thread> threads = new List<Thread>();
 
-
 	[STAThread]
-	static void Tick( )
-	{
+	static void AddThread() {
 		var thread = new Thread( TickThread );
 		threads.Add( thread );
 		thread.IsBackground = false;
 		thread.Start( );
+	}
+
+
+	[STAThread]
+	static void Tick( )
+	{
+		AddThread( );	
 	}
 
 	public static void TickThread( ) {
@@ -100,6 +101,10 @@ class Program
 				}
 			}
 		} catch (Exception e) { Console.WriteLine( e ); }
+		//remove this thread given it is no longer in use
+		threads.Remove( Thread.CurrentThread );
+		
+		
 	}
 
 }
