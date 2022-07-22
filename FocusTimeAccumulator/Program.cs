@@ -3,6 +3,7 @@ using FocusTimeAccumulator;
 using FocusTimeAccumulator.Features.Bucket;
 using FocusTimeAccumulator.Features.Pool;
 using FocusTimeAccumulator.Features.Similarity;
+using FocusTimeAccumulator.IO;
 
 class Program
 {
@@ -18,6 +19,8 @@ class Program
 	static System.Timers.Timer timer = new System.Timers.Timer( );
 	public static async Task Main( )
 	{
+		CrashDump.Dump("Crash Dump Test.");
+		
 		//if the settings exist
 		if ( File.Exists( appSettingfile ) )
 			settings = SaveData.DeserializeJson<Settings>( appSettingfile );
@@ -39,7 +42,7 @@ class Program
 			e.Cancel = true;
 			exiting = true;
 			Console.WriteLine( "ctrl+c was pressed, saving..." );
-			AddThread( );
+			AddTickThread( );
 		};
 		//start timer and then hold the program open indefinitely
 		timer.Start( );
@@ -51,7 +54,7 @@ class Program
 	static List<Thread> threads = new List<Thread>();
 
 	[STAThread]
-	static void AddThread() {
+	static void AddTickThread() {
 		var thread = new Thread( TickThread );
 		threads.Add( thread );
 		thread.IsBackground = false;
@@ -62,7 +65,7 @@ class Program
 	[STAThread]
 	static void Tick( )
 	{
-		AddThread( );	
+		AddTickThread( );	
 	}
 
 	public static void TickThread( ) {
@@ -103,7 +106,13 @@ class Program
 					Environment.Exit( 0 );
 				}
 			}
-		} catch (Exception e) { Console.WriteLine( e ); }
+		} catch (Exception e) 
+		{ 
+			Console.WriteLine( e );
+
+			// If console closes, we can look at a crash dump.
+			CrashDump.Dump(e.Message);
+		}
 		//remove this thread given it is no longer in use
 		threads.Remove( Thread.CurrentThread );
 		
