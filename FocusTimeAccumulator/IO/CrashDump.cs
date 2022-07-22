@@ -10,25 +10,9 @@ namespace FocusTimeAccumulator.IO
     {
         public static void Dump(string ParamMessage)
         {
-            DateTime now = DateTime.Now;
+            string now = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
 
-            // Instad of using DateTime.Now.ToString(),
-            // We must Build our own timestamp because \ and : are bad in file names.
-            StringBuilder sb = new StringBuilder();
-            sb.Append("D");
-            sb.Append(now.Day);
-            sb.Append("-");
-            sb.Append(now.Month);
-            sb.Append("-");
-            sb.Append(now.Year);
-            sb.Append("-T");
-            sb.Append(now.Hour);
-            sb.Append("-");
-            sb.Append(now.Minute);
-            sb.Append("-");
-            sb.Append(now.Second);
-
-            string path = Directory.GetCurrentDirectory() + "\\CrashDump-" + sb.ToString() + ".txt";
+            string path = Directory.GetCurrentDirectory() + "\\CrashDump-" + now + ".txt";
             File.WriteAllText(path, ParamMessage);
         }
     }

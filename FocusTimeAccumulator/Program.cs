@@ -19,8 +19,6 @@ class Program
 	static System.Timers.Timer timer = new System.Timers.Timer( );
 	public static async Task Main( )
 	{
-		CrashDump.Dump("Crash Dump Test.");
-		
 		//if the settings exist
 		if ( File.Exists( appSettingfile ) )
 			settings = SaveData.DeserializeJson<Settings>( appSettingfile );
