@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using FocusTimeAccumulator.Features.Bucket;
 using FocusTimeAccumulator.Features.Similarity;
 using FocusTimeAccumulator.IO;
 using static Program;
@@ -13,11 +14,13 @@ namespace FocusTimeAccumulator.Features.Pool
 
 		public string previousTitle="oil";
 
+        public Dictionary<string, PoolApp> cachedApps = new Dictionary<string, PoolApp>( ); 
+
 		//this function name could go for an improvement
 		public void DoFocusPool( string appName, string appTitle )
         {
 			string path = SaveData.CreatePath( appName, "Pools", settings.fileStructure, settings.timeStampFormat );
-			var app = File.Exists( path ) ? SaveData.DeserializeJson<PoolApp>( path ) : new PoolApp( appName );
+            var app = GetApp( appName, appTitle, path );
 			var setting = settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
 
             //if similar checking is enabled in the settings
@@ -55,9 +58,22 @@ namespace FocusTimeAccumulator.Features.Pool
             SaveData.SerializeJson( path, app ); //save json
         }
 
+		PoolApp GetApp( string appName, string appTitle, string path )
+		{
+            //if an app is cached, return that app
+            if ( cachedApps.ContainsKey( appName ) )
+                return cachedApps[ appName ];
 
 
-        void UpdateApp( PoolApp app, string title )
+            //if no app is cached we attempt to deserialize it from the disk,
+            //if there is no file to Deserialize we create a new empty app
+            var app = File.Exists( path ) ? SaveData.DeserializeJson<PoolApp>( path ) : new( appName );
+            //then cache the app
+            cachedApps.Add( appName, app );
+            return app;
+		}
+
+		void UpdateApp( PoolApp app, string title )
         {
             //if there is a packet
             var packets = app.poolPackets.Where( p => p.pageTitle == title ).ToList( );

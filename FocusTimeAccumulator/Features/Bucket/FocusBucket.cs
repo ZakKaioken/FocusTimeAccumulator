@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using FocusTimeAccumulator.Features.Pool;
 using FocusTimeAccumulator.Features.Similarity;
 using FocusTimeAccumulator.IO;
 using static Program;
@@ -12,12 +14,14 @@ namespace FocusTimeAccumulator.Features.Bucket
 
 		public string previousTitle="oil";
 
+
+		public Dictionary<string, BucketApp> cachedApps = new Dictionary<string, BucketApp>( );
 		public void DoFocusBucket( string appName, string appTitle )
 		{
 			(prev, now) = (now, DateTime.Now);
-			
+
 			string path = SaveData.CreatePath( appName, "Buckets", settings.fileStructure, settings.timeStampFormat );
-			var app = File.Exists( path ) ? SaveData.DeserializeJson<BucketApp>( path ) : new BucketApp( appName );
+			var app = GetApp( appName, appTitle, path );
 			var setting = settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
 
 
@@ -39,6 +43,21 @@ namespace FocusTimeAccumulator.Features.Bucket
 
 			app.poolPackets = app.poolPackets.OrderBy( d => d.time ).ToList( );//sort based on time
 			SaveData.SerializeJson( path, app ); //save json
+		}
+
+		BucketApp GetApp(string appName, string appTitle, string path) {
+
+			//if an app is cached, return that app
+			if ( cachedApps.ContainsKey( appName ) )
+				return cachedApps[ appName ];
+
+
+			//if no app is cached we attempt to deserialize it from the disk,
+			//if there is no file to Deserialize we create a new empty app
+			var app = File.Exists( path ) ? SaveData.DeserializeJson<BucketApp>( path ) : new(appName);
+			//then cache the app
+			cachedApps.Add( appName, app );
+			return app;
 		}
 
 		void CreateApp( BucketApp app, string title )

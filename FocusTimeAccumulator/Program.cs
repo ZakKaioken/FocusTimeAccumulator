@@ -33,6 +33,9 @@ class Program
 
 		Console.CancelKeyPress += ( _, e ) =>
 		{
+			if ( exiting ) //if were already exiting, don't print again
+				return;
+
 			e.Cancel = true;
 			exiting = true;
 			Console.WriteLine( "ctrl+c was pressed, saving..." );
