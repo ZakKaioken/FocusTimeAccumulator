@@ -26,8 +26,11 @@ class Program
 		{
 			settings = new( ); //this was exposed, but i don't need it to be anymore
 			settings.appSettings.Add( new( ) );
-			SaveData.SerializeJson( appSettingfile, settings ); //save settings immediately
 		}
+
+		//allow any updates to the settings file to fill the important missing json data in the file
+		SaveData.SerializeJson( appSettingfile, settings ); //save settings immediately
+		
 		//set up timer to tick at the timespan set in the settings
 		timer.Elapsed += ( _, _ ) => Tick( );
 		timer.Interval = settings.tickTime.TotalMilliseconds;
@@ -109,7 +112,7 @@ class Program
 			Console.WriteLine( e );
 
 			// If console closes, we can look at a crash dump.
-			CrashDump.Dump(e.Message);
+			CrashDump.Dump(e);
 		}
 		//remove this thread given it is no longer in use
 		threads.Remove( Thread.CurrentThread );

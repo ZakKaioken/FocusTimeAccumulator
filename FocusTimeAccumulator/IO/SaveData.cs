@@ -5,7 +5,16 @@ namespace FocusTimeAccumulator
 {
 	internal class SaveData
 	{
-
+		//save any text to a file
+		public static void Save( string filePath, string text )
+		{
+			//make the folder structure for the file in the case it's missing
+			CreateMissingPath( filePath );
+			using ( StreamWriter file = File.CreateText( filePath ) )
+			{
+				file.Write( text );
+			}
+		}
 		public static void SerializeJson<T>( string filePath, T objectToWrite )
 		{
 			//make the folder structure for the file in the case it's missing

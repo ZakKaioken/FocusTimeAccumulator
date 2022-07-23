@@ -8,12 +8,11 @@ namespace FocusTimeAccumulator.IO
 {
     internal class CrashDump
     {
-        public static void Dump(string ParamMessage)
+        public static void Dump( Exception error )
         {
             string now = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
-
-            string path = Directory.GetCurrentDirectory() + "\\CrashDump-" + now + ".txt";
-            File.WriteAllText(path, ParamMessage);
-        }
+			string path = Program.settings.errorLogPath.Replace( "{time}", now );
+			SaveData.Save( path, error.ToString( ) );
+		}
     }
 }
