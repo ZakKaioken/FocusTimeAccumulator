@@ -72,7 +72,6 @@ class Program
 	public static void TickThread( ) {
 		try
 		{
-
 			//better foreground process finding suggestion from issue #2
 			var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( );
 			var appName = appProcess?.ProcessName ?? "Unknown";

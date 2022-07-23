@@ -12,8 +12,6 @@ namespace FocusTimeAccumulator.Features.Bucket
 		public DateTime prev = DateTime.Now;
 		public DateTime now = DateTime.Now;
 
-		public string previousTitle="oil";
-
 
 		public Dictionary<string, BucketApp> cachedApps = new Dictionary<string, BucketApp>( );
 		public void DoFocusBucket( string appName, string appTitle )
@@ -26,16 +24,8 @@ namespace FocusTimeAccumulator.Features.Bucket
 
 
 			if ( settings.doPoolSimilarityChecking )
-			{// this is really bad :(
+			{
 				appTitle = SimilarityCheck.GetSimilarBucketTitle( app, path, appName, appTitle );
-
-				//wierd redo of the tech in the program.cs
-				//this does change detection but with similar titles in mind
-				//this was made here because we don't want the similar tech in buckets
-
-				if ( !Program.exiting && appTitle == previousTitle )
-					return;
-				previousTitle = appTitle;
 			}
 
 			//make an app for this item, without profile checking (the file seperates buckets based on process and path mode)

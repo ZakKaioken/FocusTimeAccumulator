@@ -12,7 +12,6 @@ namespace FocusTimeAccumulator.Features.Pool
         public DateTime prev = DateTime.Now;
         public DateTime now = DateTime.Now;
 
-		public string previousTitle="oil";
 
         public Dictionary<string, PoolApp> cachedApps = new Dictionary<string, PoolApp>( ); 
 
@@ -28,15 +27,8 @@ namespace FocusTimeAccumulator.Features.Pool
             //this also will add any similar title that appears immediately after itself to the settings
             //i want to check and merge the similar items in the pool that are marked as merge in settings
             if ( settings.doPoolSimilarityChecking )
-            {// this is really bad :(
+            {
                 appTitle = SimilarityCheck.GetSimilarPoolTitle( app, path, appName, appTitle );
-
-                //wierd redo of the tech in the program.cs
-                //this does change detection but with similar titles in mind
-                //this was made here because we don't want the similar tech in buckets
-                if ( !Program.exiting && appTitle == previousTitle )
-                    return;
-                previousTitle = appTitle;
             }
 
 			(prev, now) = (now, DateTime.Now);
