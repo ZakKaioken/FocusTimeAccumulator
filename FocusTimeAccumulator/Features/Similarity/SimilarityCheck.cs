@@ -107,6 +107,8 @@ namespace FocusTimeAccumulator.Features.Similarity
 					}
 					app.titles.Remove( packet.Key );
 				}
+
+				Program.plugins?.ForEach( p => p?.OnBucketNameMerge( dead, main ) );
 				SaveData.SerializeJson( appSettingfile, settings ); //save new suggestion
 				return main.Key;
 			}

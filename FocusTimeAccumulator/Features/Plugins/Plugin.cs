@@ -30,5 +30,10 @@ namespace FocusTimeAccumulator.Features.Plugins
 
 		}
 
+		public virtual void OnBucketNameMerge( IEnumerable<KeyValuePair<string, int>> dead, KeyValuePair<string, int> main ) 
+		{
+			
+		}
+				
 	}
 }
