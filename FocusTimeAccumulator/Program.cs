@@ -1,9 +1,11 @@
 ﻿using System.Threading;
 using FocusTimeAccumulator;
 using FocusTimeAccumulator.Features.Bucket;
+using FocusTimeAccumulator.Features.Plugins;
 using FocusTimeAccumulator.Features.Pool;
 using FocusTimeAccumulator.Features.Similarity;
 using FocusTimeAccumulator.IO;
+using Newtonsoft.Json;
 
 class Program
 {
@@ -17,6 +19,7 @@ class Program
 	static FocusBucket bucket = new FocusBucket( );
 
 	static System.Timers.Timer timer = new System.Timers.Timer( );
+	public static List<Plugin?>? plugins = new List<Plugin?>( );
 	public static async Task Main( )
 	{
 		//if the settings exist
@@ -30,7 +33,18 @@ class Program
 
 		//allow any updates to the settings file to fill the important missing json data in the file
 		SaveData.SerializeJson( appSettingfile, settings ); //save settings immediately
-		
+
+
+		try
+		{
+			plugins = PluginLoader.LoadPlugins<Plugin?>( settings.pluginPath );
+		}
+		catch ( Exception e ) {
+			Console.WriteLine( e );
+			CrashDump.Dump( e ); 
+		}
+		plugins?.ForEach( x => x?.OnStart( settings ) );
+
 		//set up timer to tick at the timespan set in the settings
 		timer.Elapsed += ( _, _ ) => Tick( );
 		timer.Interval = settings.tickTime.TotalMilliseconds;
@@ -72,6 +86,8 @@ class Program
 	public static void TickThread( ) {
 		try
 		{
+
+			plugins?.ForEach( x => x?.OnTick( ) );
 			//better foreground process finding suggestion from issue #2
 			var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( );
 			var appName = appProcess?.ProcessName ?? "Unknown";
@@ -87,8 +103,10 @@ class Program
 				appTitle = appTitle[ ..settings.maxTitleLength ];
 
 			//if the process name or title changes
-			if ( exiting || ( prevTitle != appTitle || prevName != appName ) )
+			if ( appProcess != null && (exiting || prevTitle != appTitle || prevName != appName ) )
 			{
+
+				plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prevName, prevTitle, appName, appTitle ) );
 				//check the flags to see if the user wants to run both pool and or buckets at the same time
 				if ( settings.focusSetting.HasFlag( Settings.FocusSetting.pool ) )
 					pool.DoFocusPool( prevName, prevTitle );

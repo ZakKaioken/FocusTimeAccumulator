@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using FocusTimeAccumulator.Features.Bucket;
 using FocusTimeAccumulator.Features.Pool;
@@ -38,6 +39,7 @@ namespace FocusTimeAccumulator.Features.Similarity
 				var main = similarPackets.First( );
 
 				profile.titles.Add( main.pageTitle );
+
 				//ideally this should not run twice on the same item
 				if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
 				{
@@ -46,12 +48,14 @@ namespace FocusTimeAccumulator.Features.Similarity
 				}
 
 				var dead = similarPackets.Where( s => s != main );
-				foreach ( var packet in dead.ToList( ) )
+				var dt = dead.ToList( );
+				foreach ( var packet in dt )
 				{
 					main.span += packet.span;
 					main.focusCount += packet.focusCount;
 					app.poolPackets.Remove( packet );
 				}
+				Program.plugins?.ForEach( p => p?.OnPoolSpanMerge( dt, main ) );
 				SaveData.SerializeJson( appSettingfile, settings ); //save new suggestion
 				return main.pageTitle;
 			}

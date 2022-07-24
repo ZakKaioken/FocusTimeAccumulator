@@ -11,6 +11,7 @@
 		public string timeStampFormat = "d";
 		public string fileStructure = @"Apps/{feature}/{time}/{process}.json";
 		public string errorLogPath = @"Logs/CrashDump-{time}.txt";
+		public string pluginPath = @"Plugins/";
 		public string poolAppCreated = "[Pool Add]: {title} added after being focused for {span}";
 		public string poolAppUpdated = "[Pool Update]: {title} was focused for {span}. Total Time {totalTime}";
 		public string poolSharedAppCreated = "[Shared Pool Add]: {process} added after being focused for {span}";

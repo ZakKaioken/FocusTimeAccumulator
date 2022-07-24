@@ -35,9 +35,12 @@ namespace FocusTimeAccumulator
 			}
 		}
 
-		static void CreateMissingPath( string path )
+		public static void CreateMissingPath( string path )
 		{
-			var directory = Path.GetFullPath( path ).Replace( Path.GetFileName( path ), "" );
+			var filename = Path.GetFileName( path );
+			var directory = Path.GetFullPath( path );
+			if ( filename.Length > 0 )
+				directory = directory.Replace( filename ?? "", "" );
 			if ( !Directory.Exists( directory ) )
 				Directory.CreateDirectory( directory );
 		}

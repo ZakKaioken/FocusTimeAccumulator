@@ -56,7 +56,6 @@ namespace FocusTimeAccumulator.Features.Pool
             if ( cachedApps.ContainsKey( appName ) )
                 return cachedApps[ appName ];
 
-
             //if no app is cached we attempt to deserialize it from the disk,
             //if there is no file to Deserialize we create a new empty app
             var app = File.Exists( path ) ? SaveData.DeserializeJson<PoolApp>( path ) : new( appName );
