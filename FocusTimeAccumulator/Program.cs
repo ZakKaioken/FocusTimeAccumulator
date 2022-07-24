@@ -7,7 +7,7 @@ using FocusTimeAccumulator.Features.Similarity;
 using FocusTimeAccumulator.IO;
 using Newtonsoft.Json;
 
-class Program
+public class Program
 {
 	public static string appSettingfile = "settings.json";
 	public static Settings settings;
@@ -43,7 +43,7 @@ class Program
 			Console.WriteLine( e );
 			CrashDump.Dump( e ); 
 		}
-		plugins?.ForEach( x => x?.OnStart( settings ) );
+		plugins?.ForEach( x => x?.OnStart( ) );
 
 		//set up timer to tick at the timespan set in the settings
 		timer.Elapsed += ( _, _ ) => Tick( );

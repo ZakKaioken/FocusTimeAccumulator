@@ -13,7 +13,7 @@ namespace FocusTimeAccumulator.Features.Plugins
 	public class Plugin
 	{
 		//what to do when the program starts
-		public virtual void OnStart( Settings settings )
+		public virtual void OnStart( )
 		{
 
 		}
