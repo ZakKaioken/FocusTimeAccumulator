@@ -39,10 +39,12 @@ public class Program
 		{
 			plugins = PluginLoader.LoadPlugins<Plugin?>( settings.pluginPath );
 		}
-		catch ( Exception e ) {
+		catch ( Exception e )
+		{
 			Console.WriteLine( e );
-			CrashDump.Dump( e ); 
+			CrashDump.Dump( e );
 		}
+
 		plugins?.ForEach( x => x?.OnStart( ) );
 
 		//set up timer to tick at the timespan set in the settings

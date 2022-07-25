@@ -31,6 +31,7 @@ namespace FocusTimeAccumulator.Features.Bucket
 			//make an app for this item, without profile checking (the file seperates buckets based on process and path mode)
 			CreateApp( app, appTitle );
 
+
 			app.poolPackets = app.poolPackets.OrderBy( d => d.time ).ToList( );//sort based on time
 			SaveData.SerializeJson( path, app ); //save json
 		}
@@ -70,12 +71,15 @@ namespace FocusTimeAccumulator.Features.Bucket
 				var message = MessageBuilder.BuildMessage( settings.bucketAdd, now, app.name, title, span );
 				Console.WriteLine( message );
 			}
-			app.poolPackets.Add( new( )
+			BucketApp.AppSpan packet = new( )
 			{
 				pageTitle = id,
 				time = DateTime.Now - span, //subtract span from now to get start time
 				span = span //set the span
-			} );
+			};
+
+			plugins?.ForEach( x => x?.ModifyBucketPacketCreation( packet ) );
+			app.poolPackets.Add( packet );
 		}
 
 	}

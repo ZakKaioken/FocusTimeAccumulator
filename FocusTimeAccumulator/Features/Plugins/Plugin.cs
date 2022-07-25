@@ -34,6 +34,18 @@ namespace FocusTimeAccumulator.Features.Plugins
 		{
 			
 		}
-				
+
+		public virtual void ModifyBucketPacketCreation( BucketApp.AppSpan packet ) 
+		{
+		
+		}
+		public virtual void ModifyPoolAppUpdate( PoolApp.AppSpan packet )
+		{
+
+		}
+		public virtual void ModifyPoolAppCreation( PoolApp.AppSpan packet )
+		{
+
+		}
 	}
 }

@@ -46,6 +46,7 @@ namespace FocusTimeAccumulator.Features.Pool
             else
                 CreateApp( app, appTitle );
 
+
             app.poolPackets = app.poolPackets.OrderBy( d => d.time ).ToList( );//sort based on time
             SaveData.SerializeJson( path, app ); //save json
         }
@@ -72,8 +73,12 @@ namespace FocusTimeAccumulator.Features.Pool
             {
                 var packet = packets[ 0 ];
                 var span = now - prev;
-                packet.span += now - prev; //update span
+
+				plugins?.ForEach( x => x?.ModifyPoolAppUpdate( packet ) );
+				packet.span += now - prev; //update span
                 packet.focusCount++;
+
+
                 if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
                 {
                     var message = MessageBuilder.BuildMessage( settings.poolAppUpdated, now, app.name, title, span, packet.span );
@@ -96,13 +101,15 @@ namespace FocusTimeAccumulator.Features.Pool
                     var message = MessageBuilder.BuildMessage( settings.poolAppCreated, now, app.name, title, span );
                     Console.WriteLine( message );
                 }
-				app.poolPackets.Add( new( )
+                PoolApp.AppSpan packet = new( )
                 {
                     focusCount = 1,
                     pageTitle = title,
                     time = DateTime.Now - span, //subtract span from now to get start time
                     span = span //set the span
-                } );
+                };
+				plugins?.ForEach( x => x?.ModifyPoolAppCreation( packet ) );
+				app.poolPackets.Add( packet );
             }
         }
 
@@ -115,7 +122,9 @@ namespace FocusTimeAccumulator.Features.Pool
                 var span = now - prev;
                 packet.span += span;
 				packet.focusCount++;
-                if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
+
+				plugins?.ForEach( x => x?.ModifyPoolAppUpdate( packet ) );
+				if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
                 {
                     var message = MessageBuilder.BuildMessage( settings.poolSharedAppUpdated, now, app.name, "", span, packet.span );
                     Console.WriteLine( message );
@@ -135,13 +144,17 @@ namespace FocusTimeAccumulator.Features.Pool
                     var message = MessageBuilder.BuildMessage( settings.poolAppCreated, now, app.name, "", span );
                     Console.WriteLine( message );
                 }
-                app.poolPackets.Add( new( )
+                PoolApp.AppSpan packet = new( )
                 {
                     focusCount = 1,
                     pageTitle = app.name, // no need for lookup table if there's only one possible title for this page
                     time = DateTime.Now - span, //subtract span from now to get start time
                     span = span //set the span
-                } );
+                };
+
+				plugins?.ForEach( x => x?.ModifyPoolAppCreation( packet ) );
+
+				app.poolPackets.Add(packet);
             }
         }
     }
