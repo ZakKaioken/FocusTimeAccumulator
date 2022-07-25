@@ -108,7 +108,6 @@ public class Program
 			if ( appProcess != null && (exiting || prevTitle != appTitle || prevName != appName ) )
 			{
 
-				plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prevName, prevTitle, appName, appTitle ) );
 				//check the flags to see if the user wants to run both pool and or buckets at the same time
 				if ( settings.focusSetting.HasFlag( Settings.FocusSetting.pool ) )
 					pool.DoFocusPool( prevName, prevTitle );
@@ -119,6 +118,8 @@ public class Program
 				//set old name and title
 				prevName = appName;
 				prevTitle = appTitle;
+
+				plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prevName, prevTitle, appName, appTitle ) );
 				Thread.Sleep( 3000 );
 				if ( exiting )
 				{
