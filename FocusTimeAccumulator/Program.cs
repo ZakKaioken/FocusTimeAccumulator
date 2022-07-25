@@ -108,6 +108,7 @@ public class Program
 			if ( appProcess != null && (exiting || prevTitle != appTitle || prevName != appName ) )
 			{
 
+				plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prevName, prevTitle, appName, appTitle ) );
 				//check the flags to see if the user wants to run both pool and or buckets at the same time
 				if ( settings.focusSetting.HasFlag( Settings.FocusSetting.pool ) )
 					pool.DoFocusPool( prevName, prevTitle );
