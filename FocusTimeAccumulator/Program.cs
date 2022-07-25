@@ -118,7 +118,7 @@ public class Program
 				//set old name and title
 				prevName = appName;
 				prevTitle = appTitle;
-
+				//
 				plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prevName, prevTitle, appName, appTitle ) );
 				Thread.Sleep( 3000 );
 				if ( exiting )
