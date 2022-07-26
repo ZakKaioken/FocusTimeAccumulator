@@ -12,14 +12,13 @@ namespace FocusTimeAccumulator.Features.Pool
         public DateTime prev = DateTime.Now;
         public DateTime now = DateTime.Now;
 
-
-        public Dictionary<string, PoolApp> cachedApps = new Dictionary<string, PoolApp>( ); 
-
+        public Dictionary<string, PoolApp> cachedApps = new Dictionary<string, PoolApp>( );
+        public string path;
 		//this function name could go for an improvement
 		public void DoFocusPool( string appName, string appTitle )
         {
-			string path = SaveData.CreatePath( appName, "Pools", settings.fileStructure, settings.timeStampFormat );
-            var app = GetApp( appName, appTitle, path );
+			path = SaveData.CreatePath( appName, "Pools", settings.fileStructure, settings.timeStampFormat );
+            var app = GetApp( appName );
 			var setting = settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
 
             //if similar checking is enabled in the settings
@@ -51,7 +50,7 @@ namespace FocusTimeAccumulator.Features.Pool
             SaveData.SerializeJson( path, app ); //save json
         }
 
-		PoolApp GetApp( string appName, string appTitle, string path )
+		public PoolApp GetApp( string appName )
 		{
             //if an app is cached, return that app
             if ( cachedApps.ContainsKey( appName ) )

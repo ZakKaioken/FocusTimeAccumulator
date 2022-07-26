@@ -15,8 +15,8 @@ public class Program
 	public static string prevName = "";
 	public static string prevTitle = "";
 
-	static FocusPool pool = new FocusPool( );
-	static FocusBucket bucket = new FocusBucket( );
+	public static FocusPool pool = new FocusPool( );
+	public static FocusBucket bucket = new FocusBucket( );
 
 	static System.Timers.Timer timer = new System.Timers.Timer( );
 	public static List<Plugin?>? plugins = new List<Plugin?>( );

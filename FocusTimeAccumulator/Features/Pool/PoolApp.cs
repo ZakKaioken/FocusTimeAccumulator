@@ -9,7 +9,9 @@
         {
             name = procName;
         }
-
+		public AppSpan? GetSpan(string pageTitle) {
+			return poolPackets.Where( s => s.pageTitle == pageTitle ).FirstOrDefault( );
+		}
         [Serializable]
         public class AppSpan
         {
