@@ -1,4 +1,6 @@
-﻿namespace FocusTimeAccumulator.Features.Pool
+﻿using System;
+
+namespace FocusTimeAccumulator.Features.Pool
 {
     [Serializable]
     public class PoolApp
@@ -10,7 +12,8 @@
             name = procName;
         }
 		public AppSpan? GetSpan(string pageTitle) {
-			return poolPackets.Where( s => s.pageTitle == pageTitle ).FirstOrDefault( );
+			return poolPackets?.Where( s => s.pageTitle == pageTitle ).FirstOrDefault();
+			
 		}
         [Serializable]
         public class AppSpan
