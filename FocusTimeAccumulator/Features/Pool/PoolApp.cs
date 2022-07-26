@@ -19,42 +19,70 @@
             public int focusCount = 0;
             public Dictionary<string, Stat> stats = new Dictionary<string, Stat>( );
 
-            /// <summary>
-            /// Adds count to stat (Cummulative).
-            /// If stat does not exist it's created automatically.
-            /// </summary>
-            public void AddStat( string stat, int count )
+			/// <summary>
+			/// Increases a statistic by a count. 
+			/// If there is no stat, it will be created.
+			/// </summary>
+			public void AddStat( string stat, int count )
             {
                 if ( stats.ContainsKey( stat ) )
-                {
-                    stats[ stat ].value += count;
-                } else {
-                    stats.Add( stat, new Stat(count) );
-                }
+                    stats[ stat ] += count;
+                 else 
+                    stats.Add( stat, count );                
             }
+			/// <summary>
+			/// Increases a statistic by 1. 
+			/// If there is no stat, it will be created.
+			/// </summary>
+			public void AddStat( string stat )
+			{
+				if ( stats.ContainsKey( stat ) )				
+					stats[ stat ]++;				
+				else				
+					stats.Add( stat, 1 );				
+			}
 
-            /// <summary>
-            /// Set stat to zero.
-            /// If stat does not exist return false.
-            /// </summary>
-			public bool ClearStat( string stat)
+
+			/// <summary>
+			/// Set a stat to some count.
+			/// If there is no stat, it will be created.
+			/// </summary>
+			public void SetStat( string stat, int count )
 			{
 				if ( stats.ContainsKey( stat ) )
-				{
-					stats[ stat ].value = 0;
-                    return true;
-				}
-                return false;
+					stats[ stat ].value = count;
+				else
+					stats.Add( stat, count );
 			}
-            
-			public class Stat {
+
+			/// <summary>
+			/// Clear a stat, removing it from the dictionary
+            /// If no stat exists or fails to be removed this will return false
+			/// </summary>
+			public bool ClearStat( string stat)
+			{
+                return stats.ContainsKey( stat ) && stats.Remove( stat );
+            }
+
+            public class Stat {
                 public int value;
 
 				public static implicit operator int( Stat d ) => d.value;
-				public static explicit operator Stat( int b ) => new Stat( b );
+				public static implicit operator PoolApp.AppSpan.Stat( int b ) => new Stat( b );
+				public Stat(int value ) => this.value = value;
+				
 
-                public Stat(int value ) => this.value = value;
-            }
+				//allow support for directly modifying a stat using operators
+				public static Stat operator +( Stat a, int b ) => a.value + b;
+				public static Stat operator -( Stat a, int b ) => a.value - b;
+				public static Stat operator +( Stat a, Stat b ) => a.value + b.value;
+				public static Stat operator -( Stat a, Stat b ) => a.value - b.value;
+				//allow for checking if stats are equal nor not 
+				public static bool operator ==( Stat a, int b ) => a.value == b;
+				public static bool operator !=( Stat a, int b ) => a.value != b;
+				public static bool operator ==( Stat a, Stat b ) => a.value == b.value;
+				public static bool operator !=( Stat a, Stat b ) => a.value != b.value;
+			}
         }
     }
 
