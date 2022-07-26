@@ -23,7 +23,7 @@
 
 			/// <summary>
 			/// Increases a statistic by a count. 
-			/// If there is no stat, it will be created.
+			/// If there is no stat, it will be created with the count.
 			/// </summary>
 			public void AddStat( string stat, int count )
             {
@@ -34,7 +34,7 @@
             }
 			/// <summary>
 			/// Increases a statistic by 1. 
-			/// If there is no stat, it will be created.
+			/// If there is no stat, it will be created with the count 1.
 			/// </summary>
 			public void AddStat( string stat )
 			{
@@ -43,11 +43,24 @@
 				else				
 					stats.Add( stat, 1 );				
 			}
-
+			/// <summary>
+			/// Gets a stat. 
+			/// If there is no stat, it will be created with the count 0.
+			/// </summary>
+			public Stat? GetStat( string stat )
+			{
+				if ( stats.ContainsKey( stat ) )
+					return (Stat?)stats[ stat ];
+				else
+				{
+					stats.Add( stat, 0 );
+					return (Stat?)stats[ stat ];
+				}
+			}
 
 			/// <summary>
 			/// Set a stat to some count.
-			/// If there is no stat, it will be created.
+			/// If there is no stat, it will be created with the count.
 			/// </summary>
 			public void SetStat( string stat, int count )
 			{
