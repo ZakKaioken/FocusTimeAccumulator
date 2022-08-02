@@ -88,7 +88,7 @@ public class Program
 		AddTickThread( );	
 	}
 
-	public static SetInitialNames() {
+	public static void SetInitialNames() {
 			var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( );
 			var appName = appProcess?.ProcessName ?? "Unknown";
 			var appTitle = appProcess?.MainWindowTitle ?? "Unknown";
