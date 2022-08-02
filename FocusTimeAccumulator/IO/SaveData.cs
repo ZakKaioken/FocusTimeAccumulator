@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace FocusTimeAccumulator
@@ -53,6 +54,19 @@ namespace FocusTimeAccumulator
 			sb.Replace( @"{feature}", feature );
 			var path = sb.ToString( );
 			return path;
+		}
+
+		internal static void CopyFile( string path, string newPath ) {
+			var filename = Path.GetFileName( path );
+			var directory = Path.GetFullPath( path );
+			if ( filename.Length > 0 )
+				directory = directory.Replace( filename ?? "", "" );
+
+
+			var vp = Path.Combine( directory, newPath, filename );
+			CreateMissingPath( vp );
+			Console.WriteLine( $"attempting to save file to {vp}" );
+			File.Copy( path, vp );
 		}
 	}
 }

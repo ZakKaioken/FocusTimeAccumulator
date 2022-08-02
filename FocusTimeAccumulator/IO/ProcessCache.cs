@@ -28,13 +28,14 @@ namespace FocusTimeAccumulator.IO
         public static string GetProductName(string appName)
         {
             string result = "NULL";
-            
+
+
+            if ( appName == null )
+                return result;
             if (processCache.ContainsKey(appName))
             {
                 if (processCache[appName].HasExited)
-                {
-                    return "NULL";
-                }
+                    return result;
 
                 result = processCache[appName].MainModule?.FileVersionInfo.ProductName ?? "NULL";
             }
@@ -45,13 +46,13 @@ namespace FocusTimeAccumulator.IO
         public static string GetProductDescription(string appName)
         {
             string result = "NULL";
-
-            if (processCache.ContainsKey(appName))
+			if ( appName == null )
+				return result;
+			if (processCache.ContainsKey(appName))
             {
                 if (processCache[appName].HasExited)
-                {
-                    return "NULL";
-                }
+                    return result;
+                
 
                 result = processCache[appName].MainModule?.FileVersionInfo.FileDescription ?? "NULL";
             }
