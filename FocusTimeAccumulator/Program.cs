@@ -89,23 +89,22 @@ public class Program
 	}
 
 	public static void SetInitialNames() {
-			var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( );
-			var appName = appProcess?.ProcessName ?? "Unknown";
-			var appTitle = appProcess?.MainWindowTitle ?? "Unknown";
-			
-			// Cache process info for later use
-			ProcessCache.Cache(appName, appProcess);
+		var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( );
+		var appName = appProcess?.ProcessName ?? "Unknown";
+		var appTitle = appProcess?.MainWindowTitle ?? "Unknown";
+		var lastInput = FocusFinder.WindowsProcessFocusApi.GetLastInputTime( );
 
-			//if we did not get an input device ping in more than (settings.idleTime), add [Idle] tag to process
-			if ( settings.idleModeEnabled && ( DateTime.Now - lastInput ) > settings.idleTime )
-				appTitle = appTitle.Insert( 0, "[Idle] " );
+		// Cache process info for later use
+		ProcessCache.Cache(appName, appProcess);
 
-			//limit app titles based on character length
-			if ( appTitle.Length > settings.maxTitleLength )
-				appTitle = appTitle[ ..settings.maxTitleLength ];
-
-				prevName = appName;
-				prevTitle = appTitle;
+		//if we did not get an input device ping in more than (settings.idleTime), add [Idle] tag to process
+		if ( settings.idleModeEnabled && ( DateTime.Now - lastInput ) > settings.idleTime )
+			appTitle = appTitle.Insert( 0, "[Idle] " );
+		//limit app titles based on character length
+		if ( appTitle.Length > settings.maxTitleLength )
+			appTitle = appTitle[ ..settings.maxTitleLength ];
+			prevName = appName;
+			prevTitle = appTitle;
 	}
 
 	public static void TickThread( ) {
