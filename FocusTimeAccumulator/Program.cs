@@ -96,6 +96,9 @@ public class Program
 			var appTitle = appProcess?.MainWindowTitle ?? "Unknown";
 			var lastInput = FocusFinder.WindowsProcessFocusApi.GetLastInputTime( );
 
+			// Cache process info for later use
+			ProcessCache.Cache(appName, appProcess);
+
 			//if we did not get an input device ping in more than (settings.idleTime), add [Idle] tag to process
 			if ( settings.idleModeEnabled && ( DateTime.Now - lastInput ) > settings.idleTime )
 				appTitle = appTitle.Insert( 0, "[Idle] " );
@@ -107,7 +110,6 @@ public class Program
 			//if the process name or title changes
 			if ( appProcess != null && (exiting || prevTitle != appTitle || prevName != appName ) )
 			{
-
 				plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prevName, prevTitle, appName, appTitle ) );
 				//check the flags to see if the user wants to run both pool and or buckets at the same time
 				if ( settings.focusSetting.HasFlag( Settings.FocusSetting.pool ) )
