@@ -61,6 +61,9 @@ public class Program
 			Console.WriteLine( "ctrl+c was pressed, saving..." );
 			AddTickThread( );
 		};
+
+		SetInitialNames();
+		
 		//start timer and then hold the program open indefinitely
 		timer.Start( );
 		await Task.Delay( -1 );
@@ -83,6 +86,26 @@ public class Program
 	static void Tick( )
 	{
 		AddTickThread( );	
+	}
+
+	public static SetInitialNames() {
+			var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( );
+			var appName = appProcess?.ProcessName ?? "Unknown";
+			var appTitle = appProcess?.MainWindowTitle ?? "Unknown";
+			
+			// Cache process info for later use
+			ProcessCache.Cache(appName, appProcess);
+
+			//if we did not get an input device ping in more than (settings.idleTime), add [Idle] tag to process
+			if ( settings.idleModeEnabled && ( DateTime.Now - lastInput ) > settings.idleTime )
+				appTitle = appTitle.Insert( 0, "[Idle] " );
+
+			//limit app titles based on character length
+			if ( appTitle.Length > settings.maxTitleLength )
+				appTitle = appTitle[ ..settings.maxTitleLength ];
+
+				prevName = appName;
+				prevTitle = appTitle;
 	}
 
 	public static void TickThread( ) {
@@ -111,6 +134,8 @@ public class Program
 			if ( appProcess != null && (exiting || prevTitle != appTitle || prevName != appName ) )
 			{
 				plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prevName, prevTitle, appName, appTitle ) );
+
+
 				//check the flags to see if the user wants to run both pool and or buckets at the same time
 				if ( settings.focusSetting.HasFlag( Settings.FocusSetting.pool ) )
 					pool.DoFocusPool( prevName, prevTitle );

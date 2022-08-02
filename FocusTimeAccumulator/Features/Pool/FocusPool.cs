@@ -20,7 +20,7 @@ namespace FocusTimeAccumulator.Features.Pool
 			path = SaveData.CreatePath( appName, "Pools", settings.fileStructure, settings.timeStampFormat );
             var app = GetApp( appName );
 			var setting = settings.appSettings.Where( a => a.proc == appName ).ToList( ).FirstOrDefault( );
-
+            
             //if similar checking is enabled in the settings
             //get and replace the current title with the saved title in settings
             //this also will add any similar title that appears immediately after itself to the settings
