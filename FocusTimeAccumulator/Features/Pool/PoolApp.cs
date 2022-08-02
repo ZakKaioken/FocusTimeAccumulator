@@ -6,11 +6,15 @@ namespace FocusTimeAccumulator.Features.Pool
     public class PoolApp
     {
         public string name;
+        public string productName;
+        public string productDescription;
         public List<AppSpan> poolPackets = new List<AppSpan>( );
-        public PoolApp( string procName )
-        {
-            name = procName;
-        }
+        public PoolApp( string procName, string ParamProductName, string ParamProductDescription)
+		{
+			name = procName;
+			productName = ParamProductName;
+			productDescription = ParamProductDescription;
+		}
 		public AppSpan? GetSpan(string pageTitle) {
 			return poolPackets?.Where( s => s.pageTitle == pageTitle ).FirstOrDefault();
 			

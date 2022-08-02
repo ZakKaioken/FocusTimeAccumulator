@@ -42,10 +42,21 @@ namespace FocusTimeAccumulator.Features.Bucket
 			if ( cachedApps.ContainsKey( appName ) )
 				return cachedApps[ appName ];
 
+			BucketApp app;
 
-			//if no app is cached we attempt to deserialize it from the disk,
-			//if there is no file to Deserialize we create a new empty app
-			var app = File.Exists( path ) ? SaveData.DeserializeJson<BucketApp>( path ) : new(appName);
+			//if no app is cached we attempt to deserialize it from the disk
+			if (File.Exists( path ))
+				app = SaveData.DeserializeJson<BucketApp>( path );
+			else
+				//if there is no file to Deserialize we create a new empty app
+				app = new(appName, ProcessCache.GetProductName(appName), ProcessCache.GetProductDescription(appName));
+
+			// Some times the Deserialization fails due to empty or corrupt json files
+			// So we make sure the app is initialized
+			// !!! This will overwrite corrupt files !!!
+			if (app == null)
+				app = new(appName, ProcessCache.GetProductName(appName), ProcessCache.GetProductDescription(appName));
+
 			//then cache the app
 			cachedApps.Add( appName, app );
 			return app;

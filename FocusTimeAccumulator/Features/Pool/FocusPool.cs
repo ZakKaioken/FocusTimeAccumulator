@@ -56,9 +56,21 @@ namespace FocusTimeAccumulator.Features.Pool
             if ( cachedApps.ContainsKey( appName ) )
                 return cachedApps[ appName ];
 
-            //if no app is cached we attempt to deserialize it from the disk,
-            //if there is no file to Deserialize we create a new empty app
-            var app = File.Exists( path ) ? SaveData.DeserializeJson<PoolApp>( path ) : new( appName );
+            PoolApp app;
+
+            //if no app is cached we attempt to deserialize it from the disk
+            if (File.Exists( path ))
+                app = SaveData.DeserializeJson<PoolApp>( path );
+            else
+                //if there is no file to Deserialize we create a new empty app
+                app = new( appName, ProcessCache.GetProductName(appName), ProcessCache.GetProductDescription(appName));
+
+            // Some times the Deserialization fails due to empty or corrupt json files
+            // So we make sure the app is initialized
+            // !!! This will overwrite corrupt files !!!
+            if (app == null)
+                app = new( appName, ProcessCache.GetProductName(appName), ProcessCache.GetProductDescription(appName));
+            
             //then cache the app
             cachedApps.Add( appName, app );
             return app;
@@ -92,7 +104,7 @@ namespace FocusTimeAccumulator.Features.Pool
             var aps = app.poolPackets.Where( a => a.pageTitle == title );
             if ( !aps.Any( ) )
             {
-                //add a new aoo
+                //add a new app
                 var span = now - prev;
 
                 if ( settings.focusConsoleSetting.HasFlag( Settings.FocusSetting.pool ) )
