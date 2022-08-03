@@ -11,8 +11,8 @@ namespace FocusTimeAccumulator.IO
         public static void Dump( Exception error )
         {
             string now = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
-			string path = Program.settings.errorLogPath.Replace( "{time}", now );
-			SaveData.Save( path, error.ToString( ) );
+            string path = (Program.settings != null ? Program.settings.errorLogPath : @"Logs/CrashDump-{time}.txt").Replace("{time}", now);
+            SaveData.Save( path, error.ToString( ) );
 		}
     }
 }
