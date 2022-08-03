@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Diagnostics;
+using System.Threading;
 using FocusTimeAccumulator;
 using FocusTimeAccumulator.Features.Bucket;
 using FocusTimeAccumulator.Features.Plugins;
@@ -59,7 +60,7 @@ public class Program
 			e.Cancel = true;
 			exiting = true;
 			Console.WriteLine( "ctrl+c was pressed, saving..." );
-			AddTickThread( );
+			Tick( );
 		};
 
 		SetInitialNames();
@@ -74,19 +75,14 @@ public class Program
 	static List<Thread> threads = new List<Thread>();
 
 	[STAThread]
-	static void AddTickThread() {
+	static void AddTickThread(ChangeData cd) {
 		var thread = new Thread( TickThread );
 		threads.Add( thread );
 		thread.IsBackground = false;
-		thread.Start( );
+		thread.Start( cd );
 	}
 
 
-	[STAThread]
-	static void Tick( )
-	{
-		AddTickThread( );	
-	}
 
 	public static void SetInitialNames() {
 		var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( );
@@ -107,10 +103,10 @@ public class Program
 			prevTitle = appTitle;
 	}
 
-	public static void TickThread( ) {
+	[STAThread]
+	public static void Tick( ) {
 		try
 		{
-
 			plugins?.ForEach( x => x?.OnTick( ) );
 			//better foreground process finding suggestion from issue #2
 			var appProcess = FocusFinder.WindowsProcessFocusApi.GetForegroundProcess( );
@@ -132,39 +128,78 @@ public class Program
 			//if the process name or title changes
 			if ( appProcess != null && (exiting || prevTitle != appTitle || prevName != appName ) )
 			{
-				plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prevName, prevTitle, appName, appTitle ) );
-
-
-				//check the flags to see if the user wants to run both pool and or buckets at the same time
-				if ( settings.focusSetting.HasFlag( Settings.FocusSetting.pool ) )
-					pool.DoFocusPool( prevName, prevTitle );
-
-				if ( settings.focusSetting.HasFlag( Settings.FocusSetting.bucket ) )
-					bucket.DoFocusBucket( prevName, prevTitle );
-
-				//set old name and title
-				prevName = appName;
-				prevTitle = appTitle;
-				//
-				plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prevName, prevTitle, appName, appTitle ) );
-				Thread.Sleep( 3000 );
-				if ( exiting )
-				{
-					Console.WriteLine( $"saved you can now safely close the terminal" );
-					Environment.Exit( 0 );
+					var cd = new ChangeData( )
+					{
+						appTitle = appTitle,
+						appName = appName,
+						prvName = prevName,
+						prvTitle = prevTitle,
+						appProcess = appProcess
+					};
+					AddTickThread( cd );
 				}
+				
 			}
-		} catch (Exception e) 
-		{ 
+
+		catch ( Exception e )
+		{
 			Console.WriteLine( e );
 
 			// If console closes, we can look at a crash dump.
-			CrashDump.Dump(e);
+			CrashDump.Dump( e );
 		}
+		
+		
+	}
+	class ChangeData {
+		public Process appProcess;
+		public string prvName, prvTitle, appName, appTitle;
+
+		internal void Deconstruct( out Process appProcess, out string prvName, out string prvTitle, out string appName, out string appTitle )
+		{
+			appProcess = this.appProcess;
+			prvName = this.prvName;
+			prvTitle = this.prvTitle;
+			appName = this.appName;
+			appTitle = this.appTitle;
+		}	
+	}
+	static void TickThread( object data) {
+
+		var (appProcess, prvName, prvTitle, appName, appTitle) = (ChangeData)data;
+		
+		try
+		{
+			plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prvName, prvTitle, appName, appTitle ) );
+
+
+			//check the flags to see if the user wants to run both pool and or buckets at the same time
+			if ( settings.focusSetting.HasFlag( Settings.FocusSetting.pool ) )
+				pool.DoFocusPool( prevName, prevTitle );
+
+			if ( settings.focusSetting.HasFlag( Settings.FocusSetting.bucket ) )
+				bucket.DoFocusBucket( prevName, prevTitle );
+
+			//set old name and title
+			prevName = appName;
+			prevTitle = appTitle;
+			//
+			plugins?.ForEach( x => x?.OnProcessChanged( appProcess, prvName, prvTitle, appName, appTitle ) );
+			Thread.Sleep( 3000 );
+			if ( exiting )
+			{
+				Console.WriteLine( $"saved you can now safely close the terminal" );
+				Environment.Exit( 0 );
+			}
+		} catch (Exception e) {
+			Console.WriteLine( e );
+
+			// If console closes, we can look at a crash dump.
+			CrashDump.Dump( e );
+		}
+
 		//remove this thread given it is no longer in use
 		threads.Remove( Thread.CurrentThread );
-		
-		
 	}
 
 }

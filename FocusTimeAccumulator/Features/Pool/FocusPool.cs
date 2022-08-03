@@ -61,19 +61,22 @@ namespace FocusTimeAccumulator.Features.Pool
             //if no app is cached we attempt to deserialize it from the disk
             if ( File.Exists( path ) )
             {
-                app = SaveData.DeserializeJson<PoolApp>( path );
+				app = SaveData.DeserializeJson<PoolApp>( path );
                 if ( app == null )
                     SaveData.CopyFile( path, @"PossiblyCorrupt" );
 			}
-			// Some times the Deserialization fails due to empty or corrupt json files
-			// So we make sure the app is initialized
-			// !!! This will overwrite corrupt files !!!
-			app ??= new( appName );
+            // Some times the Deserialization fails due to empty or corrupt json files
+            // So we make sure the app is initialized
+            // !!! This overwrites all files that we can't access !!!
+            if ( app == null )
+            {
+				app = new( appName );
+            }
 
 
 			//then cache the app
 			cachedApps.Add( appName, app );
-            return app;
+			return app;
 		}
 
 		void UpdateApp( PoolApp app, string title )

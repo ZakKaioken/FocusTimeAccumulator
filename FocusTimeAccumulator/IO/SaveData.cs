@@ -11,28 +11,35 @@ namespace FocusTimeAccumulator
 		{
 			//make the folder structure for the file in the case it's missing
 			CreateMissingPath( filePath );
-			using ( StreamWriter file = File.CreateText( filePath ) )
+
+			using ( FileStream file = new( filePath, FileMode.Append, FileAccess.Write, FileShare.Read ) )
+			using ( StreamWriter writer = new( file, Encoding.UTF8 ) )
 			{
-				file.Write( text );
+				writer.Write( text.ToString( ) );
 			}
+
 		}
 		public static void SerializeJson<T>( string filePath, T objectToWrite )
 		{
 			//make the folder structure for the file in the case it's missing
 			CreateMissingPath( filePath );
-			using ( StreamWriter file = File.CreateText( filePath ) )
+			using ( FileStream file = new( filePath, FileMode.Append, FileAccess.Write, FileShare.Read ) )
+			using ( StreamWriter writer = new( file, Encoding.UTF8 ) )
 			{
-				JsonSerializer ser = new JsonSerializer();
-				ser.Formatting = Formatting.Indented;
-				ser.Serialize( file, objectToWrite );
+				JsonSerializer ser = new( )
+				{
+					Formatting = Formatting.Indented
+				};
+				ser.Serialize( writer, objectToWrite );
 			}
 		}
-		public static T DeserializeJson<T>( string filePath )
+		public static T? DeserializeJson<T>( string filePath )
 		{
-			using ( StreamReader file = File.OpenText( filePath ) )
-			{
+			using ( FileStream file = new( filePath, FileMode.Open, FileAccess.Read, FileShare.Read ) )
+			using ( StreamReader reader = new( file, Encoding.UTF8 ) ) { 
 				JsonSerializer serializer = new JsonSerializer( );
-				return (T)serializer.Deserialize( file, typeof( T ) );
+				var dc = serializer.Deserialize( reader, typeof( T ) );
+				return dc is T t ? t : default;
 			}
 		}
 

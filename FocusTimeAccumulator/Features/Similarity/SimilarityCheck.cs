@@ -12,7 +12,7 @@ namespace FocusTimeAccumulator.Features.Similarity
 		//this code is going to practically be a duplicate itself
 		public static string GetSimilarPoolTitle( PoolApp app, string path, string appName, string appTitle )
 		{
-			var similarPackets = app.poolPackets.Where( p => LevenshteinDistance.Calculate( p.pageTitle, appTitle ) < 5 );
+			var similarPackets = app.poolPackets.Where( p => LevenshteinDistance.Calculate( p.pageTitle, appTitle ) < 3 );
 
 			//get a profile
 			Settings.SimilarTitles profile = null;
@@ -26,9 +26,11 @@ namespace FocusTimeAccumulator.Features.Similarity
 				var p = profiles.First( );
 				if ( p.combineSimilarTitles )
 					profile = p;
+				else
+					return appTitle;
 			}
 			//if there are titles that are similar inside the profile
-			var titles = profile.titles.Where( ss => { var x = LevenshteinDistance.Calculate( ss, appTitle ); return x is < 10 and > 0; } );
+			var titles = profile.titles.Where( ss => { var x = LevenshteinDistance.Calculate( ss, appTitle ); return x is < 5 and > 0; } );
 			if ( similarPackets.Count() > 2 && !titles.Any() )
 			{
 				//only add the similar titles profile to settings if we add titles to it
@@ -64,7 +66,7 @@ namespace FocusTimeAccumulator.Features.Similarity
 		
 		public static string GetSimilarBucketTitle( BucketApp app, string path, string appName, string appTitle )
 		{
-			var similarTitles = app.titles.Where( p => LevenshteinDistance.Calculate( p.Key, appTitle ) < 5 );
+			var similarTitles = app.titles.Where( p => LevenshteinDistance.Calculate( p.Key, appTitle ) < 3 );
 
 			Settings.SimilarTitles profile = null;
 			var profiles = settings.similarTitles.Where( t => t.proc == appName );
@@ -80,7 +82,7 @@ namespace FocusTimeAccumulator.Features.Similarity
 			}
 
 			//if there are titles that are similar inside the profile
-			var titles = profile.titles.Where( ss => { var x = LevenshteinDistance.Calculate( ss, appTitle ); return x is < 10 and > 0; } );
+			var titles = profile.titles.Where( ss => { var x = LevenshteinDistance.Calculate( ss, appTitle ); return x is < 5 and > 0; } );
 
 			if ( similarTitles.Count( ) > 2 && !titles.Any( ) )
 			{
