@@ -7,10 +7,10 @@ namespace FocusTimeAccumulator.Features.Pool
     public class PoolApp
     {
         public string name;
-        public string productName;
-        public string productDescription;
+        public string? productName;
+        public string? productDescription;
         public List<AppSpan> poolPackets = new List<AppSpan>( );
-        public PoolApp( string procName)
+        public PoolApp( string procName )
 		{
 			name = procName;
 			productName = ProcessCache.GetProductName( procName );

@@ -25,32 +25,28 @@ namespace FocusTimeAccumulator.IO
             return false;
         }
 
-        public static string GetProductName(string appName)
+        public static string? GetProductName(string appName)
         {
-            string result = "NULL";
-
             try
             {
                 if ( appName != null && processCache.ContainsKey( appName ) && !processCache[ appName ].HasExited )
-                    result = processCache[ appName ].MainModule?.FileVersionInfo?.ProductName ?? "NULL";
+                    return processCache[ appName ].MainModule?.FileVersionInfo?.ProductName;
             }
             catch { }
 
-            return result;
+            return null;
         }
 
-        public static string GetProductDescription(string appName)
+        public static string? GetProductDescription(string appName)
         {
-            string result = "NULL";
-
             try
             {
                 if ( appName != null && processCache.ContainsKey( appName ) && !processCache[ appName ].HasExited )
-                    result = processCache[ appName ].MainModule?.FileVersionInfo?.FileDescription ?? "NULL";
+                    return processCache[ appName ].MainModule?.FileVersionInfo?.FileDescription;
             }
             catch { }
 
-            return result;
+            return null;
         }
     }
 }
