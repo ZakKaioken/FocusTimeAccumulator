@@ -6,8 +6,8 @@ namespace FocusTimeAccumulator.Features.Bucket
     public class BucketApp
     {
         public string name;
-        public string productName;
-        public string productDescription;
+        public string? productName;
+        public string? productDescription;
         public List<AppSpan> poolPackets = new List<AppSpan>( );
         public Dictionary<string, int> titles = new Dictionary<string, int>( );
         public BucketApp( string procName )
